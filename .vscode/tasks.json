@@ -1,0 +1,84 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Make",
+            "type": "shell",
+            "command": "make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Make Clean",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "clean"
+            ]
+        },
+        {
+            "label": "Make Clean and Make",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Make Clean",
+                "Make"
+            ]
+        },
+        {
+            "label": "Run in Citra",
+            "type": "process",
+            "group": "test",
+            "command": "/mnt/c/Users/eval/AppData/Local/Citra/nightly-mingw/citra.exe",
+            "args": [
+                "${workspaceFolder}/rhythm-run.3dsx"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "3dslink",
+            "type": "process",
+            "group": "test",
+            "command": "3dslink",
+            "args": [
+                "-a",
+                "${input:consoleIPAddress}",
+                "${workspaceFolder}/rhythm-run.3dsx"
+            ]
+        },
+        {
+            "label": "Make and Run in Citra",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Make",
+                "Run in Citra"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Make and 3dslink",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Make",
+                "3dslink"
+            ],
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "consoleIPAddress",
+            "type": "promptString",
+            "description": "Enter the target console IP address."
+        }
+    ]
+}

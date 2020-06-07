@@ -1,0 +1,51 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Attach to Citra",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/rhythm-run.3dsx",
+            "miDebuggerServerAddress": "localhost:24689",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) Attach to Rosalina",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/rhythm-run.3dsx",
+            // Nintendo 3DS IP and GDB stub port, as displayed by Luma3DS Rosalina
+            "miDebuggerServerAddress": "${input:consoleIPAddress}:${input:consoleGDBPort}",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "consoleIPAddress",
+            "type": "promptString",
+            "description": "Enter the target console IP address."
+        },
+        {
+            "id": "consoleGDBPort",
+            "type": "promptString",
+            "description": "Enter the GDB port to connect to."
+        }
+    ]
+}

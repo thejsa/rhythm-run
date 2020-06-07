@@ -1,2 +1,2 @@
-# rhythm-run
-Rhythm Run game for Nintendo 3DS
+# Rhythm Run
+Rhythm game for Nintendo 3DS

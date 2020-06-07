@@ -1,3 +1,14 @@
+_etc/
+
+# Nintendo 3DS build artifacts
+build/
+romfs/gfx/
+
+# Nintendo 3DS executables / packages / built icons
+*.3dsx
+*.cia
+*.smdh
+
 # Prerequisites
 *.d
 
