@@ -28,13 +28,16 @@
             "dependsOn": [
                 "Make Clean",
                 "Make"
+            ],
+            "problemMatcher": [
+                "$gcc"
             ]
         },
         {
             "label": "Run in Citra",
             "type": "process",
             "group": "test",
-            "command": "/mnt/c/Users/eval/AppData/Local/Citra/nightly-mingw/citra.exe",
+            "command": "/Applications/Citra/nightly-1410/citra-qt.app/Contents/MacOS/citra-qt",
             "args": [
                 "${workspaceFolder}/rhythm-run.3dsx"
             ],

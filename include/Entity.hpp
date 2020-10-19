@@ -1,13 +1,20 @@
+/*
+ * Rhythm Run for Nintendo 3DS
+ * Lauren Kelly, 2020
+ */
+
 #pragma once
 #include <3ds.h>
 #include <citro2d.h>
 #include <stdint.h>
 
+#include "Drawable.hpp"
+
 /**
  * Entity class
  */
 
-class Entity
+class Entity : public Drawable
 {
 public:
     Entity(float p_x, float p_y, C2D_SpriteSheet p_spriteSheet, size_t p_spriteIndex, float p_centerX, float p_centerY, float p_scaleX, float p_scaleY, float p_rotation);

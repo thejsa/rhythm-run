@@ -10,47 +10,40 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
-#include <memory>
 
 #include <time.h>
 
 #include <citro2d.h>
 
-#include "debug.h"
-#include "Scene.hpp"
+#include "widgets/Object.hpp"
+#include "RenderWindow.hpp"
 #include "Entity.hpp"
-#include "Label.hpp"
+// #include "Label.hpp"
 
-#define MAX_SPRITES   384
+#define MAX_SPRITES   768
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
 #define TAU 6.28f
 
-static inline void justSpin(void) {
-	while(aptMainLoop()) {
-		// Respond to user input
-		hidScanInput();
-		if(hidKeysDown() & KEY_START) break; // return to hbmenu
-	}
-}
+C2D_TextBuf g_textBuf;
+C2D_Text g_staticText;
 
 static C2D_SpriteSheet spriteSheet;
 // super simple sprite
 typedef struct
 {
-	std::shared_ptr<Entity> spr;
+	Entity spr;
 	float dx, dy; // velocity
 	float sx, sy; // scale factor
 } Sprite;
 static Sprite sprites[MAX_SPRITES];
+// Label l;
 
 // static size_t numSprites = MAX_SPRITES/2;
-static size_t numSprites = 3;
+static size_t numSprites = 1;
 
-static float d_rotation = 0.05f;
+static float d_rotation = 1.8f;
 static float gb_shouldSpriteScale = true;
-static float gb_shouldSpritesDraw = true;
-static float gb_shouldSpritesAnimate = true;
 
 static void initSprites() {
 	size_t numImages = C2D_SpriteSheetCount(spriteSheet);
@@ -61,7 +54,7 @@ static void initSprites() {
 		Sprite* sprite = &sprites[i];
 
 		// Random image, position, scale and speed
-		auto e = std::make_shared<Entity>(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, // random pos
+		Entity e(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, // random pos
 			spriteSheet, rand() % numImages, // random image
 			0.5f, 0.5f, // center
 			rand()*1.0f/RAND_MAX, rand() * 1.0f/RAND_MAX,
@@ -76,27 +69,30 @@ static void initSprites() {
 		sprite->sx = rand()*TAU/RAND_MAX;
 		sprite->sy = rand()*TAU/RAND_MAX;
 	}
+
+	const char *str = "Hello world!";
+	// Label l(str, 24.0f, 24.0f, 0, 0.5f, 0.5f, 0);
 };
 
 static void moveSprites() {
 	for (size_t i = 0; i < numSprites; i++)
 	{
 		Sprite* sprite = &sprites[i];
-		sprite->spr->move(sprite->dx, sprite->dy);
+		sprite->spr.move(sprite->dx, sprite->dy);
 		
 		// exciting scaling
 		// float old_x, old_y;
-		// old_x = sprite->spr->getCenterX();
-		// old_y = sprite->spr->getCenterY();
+		// old_x = sprite->spr.getCenterX();
+		// old_y = sprite->spr.getCenterY();
 
-		sprite->spr->setScale(sin(sprite->sx)*1.0f, cos(sprite->sy)*1.0f);
-		// sprite->spr->setPosition(old_x, old_y);
+		sprite->spr.setScale(sin(sprite->sx)*1.0f, cos(sprite->sy)*1.0f);
+		// sprite->spr.setPosition(old_x, old_y);
 
-		sprite->spr->rotateDegrees(d_rotation);
+		sprite->spr.rotateDegrees(d_rotation);
 
-		printf("\x1b[15;1HSx: %.1f / Sy: %.1f / degrees: %.2f", sprite->sx, sprite->sy, d_rotation);
+		printf("\x1b[11;1HSx: %.1f / Sy: %.1f / degrees: %.1f", sprite->sx, sprite->sy, d_rotation);
 
-		// float scaleFactor = sprite->spr->getScaleX();
+		// float scaleFactor = sprite->spr.getScaleX();
 		// if(scaleFactor >= 1.0f) {
 		// 	scaleFactor = 0.0f;
 		// }
@@ -106,13 +102,43 @@ static void moveSprites() {
 		}
 
 		// Check for collision with the screen boundaries
-		if ((sprite->spr->getX() < sprite->spr->getWidth() / 2.0f && sprite->dx < 0.0f) ||
-			(sprite->spr->getX() > (SCREEN_WIDTH-(sprite->spr->getWidth() / 2.0f)) && sprite->dx > 0.0f))
+		if ((sprite->spr.getX() < sprite->spr.getWidth() / 2.0f && sprite->dx < 0.0f) ||
+			(sprite->spr.getX() > (SCREEN_WIDTH-(sprite->spr.getWidth() / 2.0f)) && sprite->dx > 0.0f))
 			sprite->dx = -sprite->dx;
 
-		if ((sprite->spr->getY() < sprite->spr->getHeight() / 2.0f && sprite->dy < 0.0f) ||
-			(sprite->spr->getY() > (SCREEN_HEIGHT-(sprite->spr->getHeight() / 2.0f)) && sprite->dy > 0.0f))
+		if ((sprite->spr.getY() < sprite->spr.getHeight() / 2.0f && sprite->dy < 0.0f) ||
+			(sprite->spr.getY() > (SCREEN_HEIGHT-(sprite->spr.getHeight() / 2.0f)) && sprite->dy > 0.0f))
 			sprite->dy = -sprite->dy;
+	}
+}
+
+// static void sceneInit(void) {
+// 	// Create text buffer
+// 	g_textBuf = C2D_TextBufNew(4096);
+
+// 	// Parse text string
+// 	C2D_TextParse(&g_staticText, g_textBuf, "Hello, world!");
+
+// 	// Optimise text string
+// 	C2D_TextOptimize(&g_staticText);
+// }
+
+// static void sceneRender(void) {
+// 	// Draw text string
+// 	float textPosX = 400.0f - 16.0f - g_staticText.width * 0.75f; // right justify
+// 	C2D_DrawText(&g_staticText, 0, textPosX, 8.0f, 0.5f, 0.5f, 0.5f);
+// }
+
+// static void sceneExit(void) {
+// 	// Delete text buffer
+// 	C2D_TextBufDelete(g_textBuf);
+// }
+
+static inline void justSpin(void) {
+	while(aptMainLoop()) {
+		// Respond to user input
+		hidScanInput();
+		if(hidKeysDown() & KEY_START) break; // return to hbmenu
 	}
 }
 
@@ -123,19 +149,46 @@ int main(int argc_, char *argv_[]) {
 
 	// Init console on touchscreen
 	consoleInit(GFX_BOTTOM, NULL);
-	eprintf("inited console\n");
+	// printf("inited console\n");
 	
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
+	// printf("inited c3d/c2d and prepared\n");
+
+	// Create screen
+	// C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+
+	// Initialise scene
+	// sceneInit();
+
+	// widgets::Object myObj(GFX_TOP, 128.0f, 128.0f, 64.0f, 64.0f, 24.0f, 24.0f);
+	// printf("Object width: %f\n", myObj.getWidth());
+
+	// // Main loop
+	// while(aptMainLoop()) {
+	// 	hidScanInput();
+
+	// 	// Respond to user input
+	// 	if (hidKeysDown() & KEY_START) break; // in order to return to hbmenu
+
+	// 	// Render scene
+	// 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	// 	// paint background colour
+	// 	C2D_TargetClear(top, C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
+	// 	C2D_SceneBegin(top);
+	// 	sceneRender();
+	// 	C3D_FrameEnd(0);
+	// }
+
+	// cleanup
+	// De-init the scene
+	// sceneExit();
 
 	// Initialise RenderWindows
 	// printf("init renderwindow\n");
 	RenderWindow upperScreen(GFX_TOP, GFX_LEFT);
 	// RenderWindow lowerScreen(GFX_BOTTOM, GFX_LEFT);
-
-	// Create scene
-	Scene mainScene(&upperScreen);
 
 	// printf("load sheet\n");
 	// load sheet
@@ -150,19 +203,11 @@ int main(int argc_, char *argv_[]) {
 	// printf("init sprites\n");
 	initSprites();
 
-	const char *str = "Hello world!";
-	std::shared_ptr<Label> l = std::make_shared<Label>(str, 24.0f, 24.0f, 0, 0.5f, 0.5f, 0);
-	mainScene.drawables.push_back(l);
-
-	for (size_t i = 0; i < numSprites; i++) {
-		mainScene.drawables.push_back(sprites[i].spr);
-	}
-
 	printf("\x1b[8;1HPress Up to increment sprites");
 	printf("\x1b[9;1HPress Down to decrement sprites");
-	printf("\x1b[10;1HPress Left to decrease rotation");
-	printf("\x1b[11;1HPress Right to increase rotation");
-	printf("\x1b[12;1HPress A to toggle scaling");
+	printf("\x1b[9;1HPress Left to decrease rotation");
+	printf("\x1b[9;1HPress Right to increase rotation");
+	printf("\x1b[9;1HPress A to toggle scaling");
 
 	while(aptMainLoop()) {
 		// Respond to user input
@@ -172,67 +217,41 @@ int main(int argc_, char *argv_[]) {
 		u32 kHeld = hidKeysHeld();
 		if ((kHeld & KEY_UP) && numSprites < MAX_SPRITES) {
 			numSprites++;
-			mainScene.drawables.push_back(sprites[numSprites - 1].spr);
 		} else if ((kHeld & KEY_DOWN) && numSprites > 1) {
 			numSprites--;
-			mainScene.drawables.pop_back();
 		}
 		if ((kHeld & KEY_LEFT) && d_rotation > 0.0f) {
-			d_rotation = d_rotation - 0.05f;
+			d_rotation = d_rotation - 0.1f;
 		} else if ((kHeld & KEY_RIGHT) && d_rotation < 180.0f) {
-			d_rotation = d_rotation + 0.05f;
+			d_rotation = d_rotation + 0.1f;
 		}
 
 		if(hidKeysDown() & KEY_A) {
 			gb_shouldSpriteScale = !gb_shouldSpriteScale;
 		}
 
-		if(hidKeysDown() & KEY_X) {
-			gb_shouldSpritesAnimate = !gb_shouldSpritesAnimate;
-		}
-		if(hidKeysDown() & KEY_Y) {
-			gb_shouldSpritesDraw = !gb_shouldSpritesDraw;
-		}
-
 
 		// Render scene
-		eprintf("begin frame\n");
+		// printf("begin frame\n");
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-		eprintf("begin scene\n");
-		// upperScreen.beginScene();
-
-		mainScene.begin();
-
+		// printf("begin scene\n");
+		upperScreen.beginScene();
 		u32 clearColor = C2D_Color32(0xFF, 0x44, 0x77, 0xFF);
 		// printf("clear screen\n");
 		upperScreen.clear(clearColor);
 
 		// printf("move sprites\n");
-
-		if(gb_shouldSpritesAnimate) {
-			eprintf("moving sprites\n");
-			moveSprites();
-		} else {
-			eprintf("not moving sprites! nop\n");
-		}
+		moveSprites();
 		printf("\x1b[1;1HSprites: %zu/%u\x1b[K", numSprites, MAX_SPRITES);
 		printf("\x1b[2;1HCPU:     %6.2f%%\x1b[K", C3D_GetProcessingTime()*6.0f);
 		printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime()*6.0f);
 		printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K", C3D_GetCmdBufUsage()*100.0f);
-		// for (size_t i = 0; i < numSprites; i++) {
-		// 	// printf("draw sprite %d/%d\n", i, numSprites);
-		// 	// C2D_DrawSprite(&sprites[i].spr);
-		// 	sprites[i].spr->draw();
-		// }
-		// l.draw();
-
-		if(gb_shouldSpritesDraw) {
-			eprintf("rendering scene objects\n");
-			mainScene.renderObjects();
-		} else {
-			eprintf("not drawing sprites! nop\n");
+		for (size_t i = 0; i < numSprites; i++) {
+			// printf("draw sprite %d/%d\n", i, numSprites);
+			// C2D_DrawSprite(&sprites[i].spr);
+			sprites[i].spr.draw();
 		}
-
+		// l.draw();
 		C3D_FrameEnd(0);
 	}
 

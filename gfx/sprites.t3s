@@ -1,6 +1,3 @@
 --atlas -f rgba8888 -z auto
-test_cat.png
-placeholder_texture.png
 lennycat.png
-kaeru_fill_128.png
-reggie.png
+test_cat.png
