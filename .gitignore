@@ -1,4 +1,5 @@
 _etc/
+.DS_Store
 
 # Nintendo 3DS build artifacts
 build/
