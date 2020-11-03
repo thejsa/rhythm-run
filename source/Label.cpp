@@ -3,6 +3,8 @@
  * Lauren Kelly, 2020
  */
 
+#include "debug.hpp"
+
 #include <3ds.h>
 #include <citro2d.h>
 #include <stdint.h>
@@ -13,7 +15,8 @@ Label::Label(const char *p_text, float p_x, float p_y, u32 p_flags = 0, float p_
 :textFlags(p_flags), posX(p_x), posY(p_y), scaleX(p_scaleX), scaleY(p_scaleY)
 {
     // default buffer size to strlen, if not set
-    if(!p_bufSize) p_bufSize = strlen(p_text);
+    if(!p_bufSize) p_bufSize = strlen(p_text) + 1;
+    eprintf("init, str: %s, len: %d\n", p_text, p_bufSize);
 
     // Create a text buffer
     textBuf = C2D_TextBufNew(p_bufSize);
@@ -22,4 +25,5 @@ Label::Label(const char *p_text, float p_x, float p_y, u32 p_flags = 0, float p_
     C2D_TextParse(&text, textBuf, p_text);
     // Optimise the text string for fast rendering
     C2D_TextOptimize(&text);
+    eprintf("done init\n");
 };

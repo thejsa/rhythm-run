@@ -4,6 +4,9 @@
  */
 
 #pragma once
+
+#include "debug.hpp"
+
 #include <3ds.h>
 #include <citro2d.h>
 #include <stdint.h>
@@ -48,7 +51,8 @@ public:
         return this->getHeight() / 2.0f;
     };
 
-    void setSprite() { ((void)0); } // no-op
+    void setPosition(float p_x, float p_y) { posX = p_x; posY = p_y; };
+
     void move(float p_dX, float p_dY) {
         posX += p_dX;
         posY += p_dY;

@@ -13,7 +13,8 @@
 class Drawable
 {
 public:
-    // Pure virtual function
+    // Pure virtual function, since this class shouldn't be instantiated
+    // Instead, subclasses must implement this themselves
     /// @brief Draw the sprite
     virtual bool draw() = 0;
 };
