@@ -10,7 +10,9 @@
 // Most getters/setters are defined in the header file to enhance performance optimisations
 #include "Entity.hpp"
 
-Entity::Entity(float p_x, float p_y, C2D_SpriteSheet p_spriteSheet, size_t p_spriteIndex = 0, float p_centerX = 0.5f, float p_centerY = 0.5f, float p_scaleX = 1.0f, float p_scaleY = 1.0f, float p_rotation = 0.0f)
+Entity::Entity(float p_x, float p_y, C2D_SpriteSheet p_spriteSheet,
+	size_t p_spriteIndex = 0, float p_centerX = 0.5f, float p_centerY = 0.5f,
+	float p_scaleX = 1.0f, float p_scaleY = 1.0f, float p_rotation = 0.0f)
 :spriteSheet(p_spriteSheet), spriteIndex(p_spriteIndex)
 {
     // Load specified sprite from specified spriteSheet

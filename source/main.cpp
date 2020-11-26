@@ -15,7 +15,7 @@ int main(int argc_, char *argv_[]) {
 
 	// Init console on touchscreen
 	// consoleInit(GFX_BOTTOM, NULL);
-	eprintf("inited console\n");
+	// eprintf("inited console\n");
 
 	eprintf("Init C2D\n");
 
@@ -32,7 +32,6 @@ int main(int argc_, char *argv_[]) {
 		if(hidKeysDown() & KEY_START) break; // return to hbmenu
 
 		// eprintf("aptMainLoop tick\n");
-
 		game.update();
 		game.lateUpdate();
 		game.draw();

@@ -2,9 +2,10 @@
 
 /// Constructor
 SceneManager::SceneManager()
-:scenes(0), currentScene(0) {}
+:scenes(0), currentScene(nullptr), sceneCounter(0) {}
 
 unsigned int SceneManager::addScene(std::shared_ptr<Scene> p_scene) {
+	eprintf("id:%u p:%x\n", this->sceneCounter, p_scene);
     /// Add an id-scene pair to the scenes map
     auto insertedScene = this->scenes.insert(std::make_pair(this->sceneCounter, p_scene));
 
@@ -17,6 +18,7 @@ unsigned int SceneManager::addScene(std::shared_ptr<Scene> p_scene) {
 
 void SceneManager::removeScene(unsigned int p_sceneId) {
     // Find the id-scene pair for p_sceneId
+	eprintf("id:%u\n", p_sceneId);
     auto scenePair = this->scenes.find(p_sceneId);
 
     if(scenePair != this->scenes.end()) {
@@ -36,11 +38,17 @@ void SceneManager::removeScene(unsigned int p_sceneId) {
 
 void SceneManager::switchFocusTo(unsigned int p_sceneId) {
     // Find the id-scene pair for p_sceneId
+	eprintf("id:%u\n", p_sceneId);
     auto scenePair = this->scenes.find(p_sceneId);
 
-    // Call current scene's onBlur if necessary
-    if(scenePair != this->scenes.end())
-        this->currentScene->onBlur();
+    if(scenePair != this->scenes.end()) {
+        // Call current scene's onBlur if necessary
+        eprintf("ptr:%u\n", scenePair->second);
+        if(this->currentScene) {
+            eprintf("blurring old scene\n");
+            this->currentScene->onBlur();
+        }
+    }
     
     // Set current scene to new scene
     this->currentScene = scenePair->second;

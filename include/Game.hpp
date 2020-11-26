@@ -8,14 +8,19 @@
 #include "RenderWindow.hpp"
 #include "Label.hpp"
 #include "Entity.hpp"
+#include "SceneManager.hpp"
 
 #include <3ds.h>
+#include <stdint.h>
 #include <memory>
 
 class Game
 {
 public:
     Game();
+
+    /// Step the timer
+    void stepTimer();
     
     /// Standard update code
     void update();
@@ -31,7 +36,7 @@ public:
         this->drawUpper();
         this->drawLower();
     };
-
+    
     bool isRunning() {  // Should the game continue running?
         hidScanInput();
         // Quit if APT says we should, or if user presses the START key
@@ -40,9 +45,9 @@ public:
 private:
     RenderWindow upperScreen;
     RenderWindow lowerScreen;
-
-    std::shared_ptr<Label> myLabel;
-    std::shared_ptr<Label> myLabel2;
-    std::shared_ptr<Entity> mySprite;
-    std::shared_ptr<Entity> mySprite2;
+    
+    SceneManager sceneManager;
+    
+    u64 lastTime;
+    float timeDelta;
 };

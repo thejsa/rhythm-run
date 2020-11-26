@@ -30,7 +30,7 @@ public:
     // To be overridden as necessary
     virtual void processInput() {};
     virtual void update(float p_timeDelta) {};
-    virtual void lateUpdate(float p_timeDelta);
+    virtual void lateUpdate(float p_timeDelta) {};
     
     virtual void drawUpper(RenderWindow& p_renderWindow);
     virtual void drawLower(RenderWindow& p_renderWindow);

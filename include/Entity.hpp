@@ -17,7 +17,9 @@
 class Entity : public Drawable
 {
 public:
-    Entity(float p_x, float p_y, C2D_SpriteSheet p_spriteSheet, size_t p_spriteIndex, float p_centerX, float p_centerY, float p_scaleX, float p_scaleY, float p_rotation);
+    Entity(float p_x, float p_y, C2D_SpriteSheet p_spriteSheet, size_t p_spriteIndex,
+    	float p_centerX, float p_centerY, float p_scaleX, float p_scaleY,
+    	float p_rotation);
     Entity() {}; // default empty constructor
 
     // Getter functions
