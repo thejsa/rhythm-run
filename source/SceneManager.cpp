@@ -38,14 +38,14 @@ void SceneManager::removeScene(unsigned int p_sceneId) {
 
 void SceneManager::switchFocusTo(unsigned int p_sceneId) {
     // Find the id-scene pair for p_sceneId
-	eprintf("id:%u\n", p_sceneId);
+	eprintf("%u\n", p_sceneId);
     auto scenePair = this->scenes.find(p_sceneId);
 
     if(scenePair != this->scenes.end()) {
         // Call current scene's onBlur if necessary
-        eprintf("ptr:%u\n", scenePair->second);
+        // eprintf("ptr:%u\n", scenePair->second);
         if(this->currentScene) {
-            eprintf("blurring old scene\n");
+            // eprintf("blurring old scene\n");
             this->currentScene->onBlur();
         }
     }

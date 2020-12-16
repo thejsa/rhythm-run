@@ -33,9 +33,9 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/widgets
+SOURCES		:=	source source/widgets soloud/src
 DATA		:=	data
-INCLUDES	:=	include
+INCLUDES	:=	include soloud/include
 GRAPHICS	:=	gfx
 #GFXBUILD	:=	$(BUILD)
 ROMFS		:=	romfs
@@ -50,12 +50,16 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -Wno-unknown-pragmas -Wall `arm-none-eabi-pkg-config opusfile --cflags`
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -Wno-unknown-pragmas -Wall \
+			`arm-none-eabi-pkg-config opusfile --cflags`
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS	:= $(CFLAGS) -std=gnu++17 -fno-rtti -fno-exceptions
+
+CFLAGS	+=	-std=gnu11
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+
 
 LIBS	:=  `arm-none-eabi-pkg-config opusfile --libs` -lcurl -lcitro2d -lcitro3d -lctru -lm
 

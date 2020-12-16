@@ -1,8 +1,8 @@
 #include "SceneSplashScreen.hpp"
 
 SceneSplashScreen::SceneSplashScreen(SceneManager& p_sceneManager,
-	unsigned int p_spriteIndex)
-:sceneManager(p_sceneManager), splashImageIndex(p_spriteIndex),
+	AudioManager& p_audioManager, unsigned int p_spriteIndex)
+:sceneManager(p_sceneManager), audioManager(p_audioManager), splashImageIndex(p_spriteIndex),
 	nextSceneId(0), durationEnd(5.0f), durationElapsed(0.0f)
 {};
 
@@ -32,20 +32,53 @@ void SceneSplashScreen::onCreate()
 		0.0f //rotation
 	);
 
+	// Play audio
+	// soloud.init();
+	// sample.load("romfs:/sample.wav");
+	int error = 0;
+	this->opusFile = std::shared_ptr<OggOpusFile>(op_open_file ("romfs:/sample.opus", &error), op_free);
+
+	if (error)
+	{
+		eprintf("Failed to open file! error: %d\n", error);
+		this->opusFile = nullptr;
+	} else {
+		this->audioId = this->audioManager.addFile(this->opusFile);
+	}
+
 	eprintf("Fini\n");
 }
 
 void SceneSplashScreen::onFocus()
 {
-	eprintf("Focus\n");
+	// eprintf("Focus\n");
 	// Reset duration timer
 	this->durationElapsed = 0.0f;
+
+	if(this->opusFile) {
+		this->audioManager.switchFileTo(this->audioId);
+		this->audioManager.play();
+	}
+	
+	// sample.load("romfs:/sample.wav");
+	// soloud.play(sample);
+}
+
+void SceneSplashScreen::onBlur()
+{
+	if(this->opusFile) {
+		this->audioManager.pause();
+	}
 }
 
 void SceneSplashScreen::onDestroy() {
 	((void)0);
+	// soloud.deinit();
+	// if(this->opusFile) op_free(this->opusFile);
+	// smart pointer means we don't need to?
+
 	eprintf("OnDestroy\n");
-} // no-op
+}
 
 void SceneSplashScreen::setNextSceneId(unsigned int p_id)
 {
@@ -55,7 +88,7 @@ void SceneSplashScreen::setNextSceneId(unsigned int p_id)
 
 void SceneSplashScreen::update(float p_timeDelta)
 {
-	eprintf("Update, delta: %f\n", p_timeDelta);
+	// eprintf("Update, delta: %f\n", p_timeDelta);
 	this->durationElapsed += p_timeDelta;
 	
 	// change scene if splash screen should end

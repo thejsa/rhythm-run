@@ -4,22 +4,25 @@
 #include <citro2d.h>
 #include <memory>
 
+#include <opusfile.h>
+#include <opus.h>
+
 #include "SceneManager.hpp"
+#include "AudioManager.hpp"
 #include "RenderWindow.hpp"
 #include "Scene.hpp"
 #include "Entity.hpp"
 
-
 class SceneSplashScreen : public Scene
 {
 public:
-	SceneSplashScreen(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
+	SceneSplashScreen(SceneManager& p_sceneManager, AudioManager& p_audioManager, unsigned int p_spriteIndex);
 	
     // Implement the Scene interface
     void onCreate() override;
     void onDestroy() override;
     void onFocus() override;
-//     void onBlur() override; // not used
+    void onBlur() override; // not used
 	
 	void setNextSceneId(unsigned int p_id);
 
@@ -33,6 +36,8 @@ public:
     // void draw(RenderWindow& p_renderWindow);
 private:
     SceneManager& sceneManager;
+    AudioManager& audioManager;
+
 	unsigned int splashImageIndex;
 
     /// Which scene will we transition to after the splash screen?
@@ -45,4 +50,6 @@ private:
 	C2D_SpriteSheet spriteSheet;
 
 	std::shared_ptr<Entity> splashImageEntity;
+    std::shared_ptr<OggOpusFile> opusFile;
+    unsigned int audioId;
 };

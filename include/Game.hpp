@@ -9,6 +9,7 @@
 #include "Label.hpp"
 #include "Entity.hpp"
 #include "SceneManager.hpp"
+#include "AudioManager.hpp"
 
 #include <3ds.h>
 #include <stdint.h>
@@ -34,7 +35,7 @@ public:
     /// Render a full dual-screen frame
     void draw() {
         this->drawUpper();
-        this->drawLower();
+        // this->drawLower();
     };
     
     bool isRunning() {  // Should the game continue running?
@@ -47,6 +48,7 @@ private:
     RenderWindow lowerScreen;
     
     SceneManager sceneManager;
+    AudioManager audioManager;
     
     u64 lastTime;
     float timeDelta;

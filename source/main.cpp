@@ -14,8 +14,8 @@ int main(int argc_, char *argv_[]) {
 	romfsInit();
 
 	// Init console on touchscreen
-	// consoleInit(GFX_BOTTOM, NULL);
-	// eprintf("inited console\n");
+	consoleInit(GFX_BOTTOM, NULL);
+	eprintf("inited console\n");
 
 	eprintf("Init C2D\n");
 
