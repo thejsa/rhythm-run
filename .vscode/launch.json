@@ -8,9 +8,12 @@
             "name": "(gdb) Attach to Citra",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/rhythm-run.3dsx",
+            "preLaunchTask": "Make and Run in Citra",
+            "program": "${workspaceFolder}/rhythm-run.elf",
             "miDebuggerServerAddress": "localhost:24689",
             "MIMode": "gdb",
+            "miDebuggerPath": "/opt/devkitPro/devkitARM/bin/arm-none-eabi-gdb",
+            "cwd": "${workspaceFolder}",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -23,10 +26,12 @@
             "name": "(gdb) Attach to Rosalina",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/rhythm-run.3dsx",
+            "program": "${workspaceFolder}/rhythm-run.elf",
             // Nintendo 3DS IP and GDB stub port, as displayed by Luma3DS Rosalina
             "miDebuggerServerAddress": "${input:consoleIPAddress}:${input:consoleGDBPort}",
             "MIMode": "gdb",
+            "miDebuggerPath": "/opt/devkitPro/devkitARM/bin/arm-none-eabi-gdb",
+            "cwd": "${workspaceFolder}",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -1,17 +1,17 @@
-#include "SceneSplashScreen.hpp"
+#include "SceneGameplay.hpp"
 
-SceneSplashScreen::SceneSplashScreen(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager, unsigned int p_spriteIndex)
-:sceneManager(p_sceneManager), audioManager(p_audioManager), splashImageIndex(p_spriteIndex),
-	nextSceneId(0), durationEnd(5.0f), durationElapsed(0.0f)
+SceneGameplay::SceneGameplay(SceneManager& p_sceneManager,
+	AudioManager& p_audioManager, const char* p_trackName)
+:sceneManager(p_sceneManager), audioManager(p_audioManager), trackName(p_trackName),
+	nextSceneId(0), durationEnd(60.0f), durationElapsed(0.0f)
 {};
 
-void SceneSplashScreen::onCreate()
+void SceneGameplay::onCreate()
 {
 	// Load sprite sheet
 	eprintf("OnCreate\n");
 
-	this->spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/splash.t3x");
+	this->spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
 	if (!spriteSheet) {
 		eprintf("failed to load sprite sheet\n");
 		// justSpin();
@@ -26,7 +26,7 @@ void SceneSplashScreen::onCreate()
 	// 	scale = 1.0f;
 	// }
 	this->splashImageEntity = std::make_shared<Entity>(200, 120, // centre of screen
-		this->spriteSheet, this->splashImageIndex, // which sheet & image to load
+		this->spriteSheet, 1, // which sheet & image to load
 		0.5f, 0.5f, // sprite's origin
 		1.0f, 1.0f, // scale
 		0.0f //rotation
@@ -36,7 +36,12 @@ void SceneSplashScreen::onCreate()
 	// soloud.init();
 	// sample.load("romfs:/sample.wav");
 	int error = 0;
-	this->opusFile = std::shared_ptr<OggOpusFile>(op_open_file ("romfs:/sample.opus", &error), op_free);
+
+	char bgmPath[128];
+	snprintf(bgmPath, std::extent_v<decltype(bgmPath)>, "romfs:/tracks/%s.opus", this->trackName);
+	eprintf("opening %s\n", bgmPath);
+
+	this->opusFile = std::shared_ptr<OggOpusFile>(op_open_file (bgmPath, &error), op_free);
 
 	if (error)
 	{
@@ -51,7 +56,7 @@ void SceneSplashScreen::onCreate()
 	eprintf("Fini\n");
 }
 
-void SceneSplashScreen::onFocus()
+void SceneGameplay::onFocus()
 {
 	// eprintf("Focus\n");
 	// Reset duration timer
@@ -70,7 +75,7 @@ void SceneSplashScreen::onFocus()
 	// soloud.play(sample);
 }
 
-void SceneSplashScreen::onBlur()
+void SceneGameplay::onBlur()
 {
 	if(this->opusFile) {
 		this->audioManager.pause();
@@ -78,7 +83,7 @@ void SceneSplashScreen::onBlur()
 	}
 }
 
-void SceneSplashScreen::onDestroy() {
+void SceneGameplay::onDestroy() {
 	// soloud.deinit();
 	// if(this->opusFile) op_free(this->opusFile);
 	// smart pointer means we don't need to?
@@ -86,13 +91,13 @@ void SceneSplashScreen::onDestroy() {
 	this->audioManager.stop();
 }
 
-void SceneSplashScreen::setNextSceneId(unsigned int p_id)
+void SceneGameplay::setNextSceneId(unsigned int p_id)
 {
 	eprintf("%u\n", p_id);
 	this->nextSceneId = p_id;
 }
 
-void SceneSplashScreen::processInput()
+void SceneGameplay::processInput()
 {
 	// Quit if APT says we should, or if user presses the START key
 	u32 kDown = hidKeysDown();
@@ -126,7 +131,7 @@ void SceneSplashScreen::processInput()
 	};
 }
 
-void SceneSplashScreen::update(float p_timeDelta)
+void SceneGameplay::update(float p_timeDelta)
 {
 	// eprintf("Update, delta: %f\n", p_timeDelta);
 	this->durationElapsed += p_timeDelta;
@@ -136,17 +141,17 @@ void SceneSplashScreen::update(float p_timeDelta)
 	// 	sceneManager.switchFocusTo(this->nextSceneId);
 	if(this->durationElapsed >= this->durationEnd) {
 		eprintf("durationElapsed: + %.2f s\n", this->durationElapsed);
-		sceneManager.switchFocusTo(this->nextSceneId);
 		this->durationElapsed = 0;
+		sceneManager.switchFocusTo(this->nextSceneId);
 	}
 }
 
-void SceneSplashScreen::drawUpper(RenderWindow& p_renderWindow) {
+void SceneGameplay::drawUpper(RenderWindow& p_renderWindow) {
 	// eprintf("DrawU\n");
 	p_renderWindow.clear(C2D_Color32(0,0,0,0));
 	p_renderWindow.draw(this->splashImageEntity);
 }
-void SceneSplashScreen::drawLower(RenderWindow& p_renderWindow) {
+void SceneGameplay::drawLower(RenderWindow& p_renderWindow) {
 	// ((void)0);
 	p_renderWindow.clear(C2D_Color32(0,0,0,0));
 	// eprintf("DrawL\n");

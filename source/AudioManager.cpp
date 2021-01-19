@@ -4,15 +4,10 @@
 
 /// Constructor
 AudioManager::AudioManager()
-:files(0), currentFile(nullptr), fileCounter(0) {
+:shouldStop(true), isSkipping(false), files(0),
+currentFile(nullptr), fileCounter(0) {
     eprintf("init\n");
     ndspInit();
-    
-    ndspChnReset(0);
-    ndspSetOutputMode(NDSP_OUTPUT_STEREO);
-    ndspChnSetInterp(0, NDSP_INTERP_POLYPHASE);
-    ndspChnSetRate(0, SAMPLE_RATE);
-    ndspChnSetFormat(0, NDSP_FORMAT_STEREO_PCM16);
 
     auto const bufferSize = WAVEBUF_SIZE * std::extent_v<decltype(this->waveBufs)>;
 
@@ -20,37 +15,60 @@ AudioManager::AudioManager()
     if(!this->audioBuffer) {
         eprintf("Failed to allocate audio buffer\n");
     }
+}
 
-    // Get a pointer to the audio buffer that we can advance
-    auto buffer = this->audioBuffer;
-    eprintf("allocated buffer %x\n", buffer);
+AudioManager::~AudioManager() {
+    eprintf("cleanup\n");
+    this->stop();
+    this->files.clear();
+    eprintf("all done!\n");
+}
 
-    // Initialise wavebufs
-    std::memset(&this->waveBufs, 0, sizeof(this->waveBufs));
+void AudioManager::stop() {
+    eprintf("stop called!\n");
+    this->shouldStop = true;
 
-    for(auto &waveBuf : this->waveBufs) {
-        waveBuf.data_vaddr = buffer;
-        waveBuf.status     = NDSP_WBUF_DONE;
+    // signal playback thread
+    LightEvent_Signal(&this->audioEvent);
 
-        buffer += WAVEBUF_SIZE / sizeof(buffer[0]);
+    // join playback thread, await its completion and then free it
+    threadJoin(this->threadId, U64_MAX);
+
+    // get exit code
+    int exitCode = threadGetExitCode(this->threadId);
+    if(exitCode != 0) {
+        // error!
+        eprintf("ERROR: thread returned exit code %d\n", exitCode);
     }
 
-    ndspSetCallback(proxyAudioCallback, this);
-    eprintf("set ndsp callback\n", buffer);
-    
+    threadFree(this->threadId);
+
+    ndspSetCallback(NULL, nullptr);
+    ndspChnReset(BGM_CHANNEL);
+    this->threadId = NULL;
+}
+
+void AudioManager::play() {
+    // Create audio thread
     s32 priority = 0x30;
 	svcGetThreadPriority (&priority, CUR_THREAD_HANDLE);
 	priority = std::clamp<s32> (priority - 1, 0x18, 0x3F);
 
 	this->threadId = threadCreate (proxyAudioThread, this, THREAD_STACK_SIZE, priority, THREAD_AFFINITY, false);
-    eprintf("created thread with id %x\n", buffer, this->threadId);
+    eprintf("created thread with id %x\n", this->threadId);
+
+    // eprintf("pl\n");
+    // // this->shouldPause = false;
+    // this->isSkipping = false;
+    // this->shouldStop = false;
+    // LightEvent_Signal(&this->playEvent);
 }
 
 bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_waveBuf) {
-    eprintf("!\n");
+    // eprintf("!\n");
     // #ifdef DEBUG
-    TickCounter timer;
-    osTickCounterStart(&timer);
+    // TickCounter timer;
+    // osTickCounterStart(&timer);
     // #endif
 
     int totalSamples = 0;
@@ -60,7 +78,7 @@ bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_wave
 
         // decode samples
         auto const samples = op_read_stereo(p_opusFile, buffer, bufferSize);
-        eprintf("decoded %d samples\n", samples);
+        // eprintf("decoded %d samples\n", samples);
         
         if(samples <= 0)
             break;
@@ -76,12 +94,10 @@ bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_wave
     }
 
     p_waveBuf.nsamples = totalSamples;
-    ndspChnWaveBufAdd(0, &p_waveBuf);
-    DSP_FlushDataCache(p_waveBuf.data_pcm16, totalSamples * CHANNELS_PER_SAMPLE * sizeof(std::int16_t));
 
     // #ifdef DEBUG
-    osTickCounterUpdate(&timer);
-    eprintf("fillBuffer %lf ms in %lf ms\n", totalSamples * 1000.0 / SAMPLE_RATE, osTickCounterRead(&timer));
+    // osTickCounterUpdate(&timer);
+    // eprintf("fillBuffer %lf ms in %lf ms\n", totalSamples * 1000.0 / SAMPLE_RATE, osTickCounterRead(&timer));
     // #endif
     
     return true;
@@ -89,24 +105,100 @@ bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_wave
 
 void AudioManager::audioThread() {
     // auto const opusFile = static_cast<OggOpusFile*>(p_arg);
-    eprintf("hello\n");
-    LightEvent_Wait(&this->playEvent);
+    eprintf("Hello from audio thread!\n");
+    if(!this->currentFile) {
+        eprintf("no file!\n");
+
+        // exit
+        this->shouldStop = true;
+        threadExit(1); // error state
+    }
+
+    // Initialise sync primitive
+    LightEvent_Init(&audioEvent, RESET_ONESHOT);
+
+    // Init stuff for playback
+    this->initPlayback();
+
     eprintf("let's go!\n");
-    while(!this->shouldQuit) {
-        eprintf("!\n");
-        if(this->shouldPause) {
-            eprintf("paused");
-            LightEvent_Wait(&this->playEvent);
-            eprintf("play!");
-            continue;
-        }
+    this->shouldStop = false;
+
+    while(!this->shouldStop && !this->isSkipping) {
+
+        // yield
+        svcSleepThread(0);
+
+
+        // eprintf("!\n");
+        // if(this->shouldPause) {
+        //     eprintf("paused");
+        //     LightEvent_Wait(&this->playEvent);
+        //     eprintf("play!");
+        //     continue;
+        // }
 
         for(auto &waveBuf : this->waveBufs) {
+            // yield
+            svcSleepThread(0);
+
             if(waveBuf.status != NDSP_WBUF_DONE) continue;
 
-            if(!this->fillBuffer(this->currentFile.get(), waveBuf)) return;
+            // fill buffer, or break if end of file
+            if(!this->fillBuffer(this->currentFile.get(), waveBuf)) {
+                eprintf("reached end of audio playback\n");
+                this->shouldStop = true;
+                break;
+            }
+
+            // add the wavebuf and flush DSP cache
+            ndspChnWaveBufAdd(BGM_CHANNEL, &waveBuf);
+            DSP_FlushDataCache(waveBuf.data_pcm16, waveBuf.nsamples * CHANNELS_PER_SAMPLE * sizeof(std::int16_t));
         }
+
+        // If playback is paused, spin
+        // if(ndspChnIsPaused(BGM_CHANNEL)) {
+        //     continue;
+        // }
+
+        // wait until we're needed!
         LightEvent_Wait(&this->audioEvent);
+
+        // yield
+        svcSleepThread(0);
+    }
+
+    // by this point, we've reached end of file, or have been told to stop
+    // reset audio channel
+    ndspChnReset(BGM_CHANNEL);
+
+    // exit
+    this->shouldStop = true;
+    threadExit(0);
+}
+
+void AudioManager::initPlayback() {
+    eprintf("hi!\n");
+    // Initialise NDSP
+    ndspChnReset(BGM_CHANNEL);
+    ndspSetOutputMode(NDSP_OUTPUT_STEREO);
+    ndspChnSetInterp(BGM_CHANNEL, NDSP_INTERP_POLYPHASE);
+    ndspChnSetRate(BGM_CHANNEL, SAMPLE_RATE);
+    ndspChnSetFormat(BGM_CHANNEL, NDSP_FORMAT_STEREO_PCM16);
+    ndspSetCallback(proxyAudioCallback, this);
+    eprintf("completed ndsp init\n");
+
+    // Get a pointer to the audio buffer that we can advance
+    auto buffer = this->audioBuffer;
+    eprintf("allocated buffer %x\n", buffer);
+
+    // Initialise wavebufs
+    std::memset(&this->waveBufs, 0, sizeof(this->waveBufs));
+
+    for(auto &waveBuf : this->waveBufs) {
+        waveBuf.data_vaddr = buffer;
+        waveBuf.status     = NDSP_WBUF_DONE;
+
+        buffer += WAVEBUF_SIZE / sizeof(buffer[0]);
     }
 }
 
@@ -143,25 +235,24 @@ void AudioManager::removeFile(unsigned int p_fileId) {
     }
 }
 
-void AudioManager::switchFileTo(unsigned int p_fileId) {
+int AudioManager::switchFileTo(unsigned int p_fileId) {
+    // Tear down any running playback thread
+    if(this->threadId != NULL)
+        this->stop();
+    
+    // Seek any active audio file to the start
+    if(this->currentFile)
+        op_raw_seek(this->currentFile.get(), 0);
+
     // Find the id-file pair for p_fileId
 	eprintf("%u\n", p_fileId);
     auto filePair = this->files.find(p_fileId);
 
-    bool wasPaused = this->shouldPause;
-
-    if(filePair != this->files.end()) {
-        // Call current file's onBlur if necessary
-        // eprintf("ptr:%u\n", filePair->second);
-        if(this->currentFile) {
-            // this->shouldPause = true;
-            if(!wasPaused) this->pause();
-
-            // Reset it to the start
-            op_raw_seek(this->currentFile.get(), 0);
-            // eprintf("blurring old file\n");
-            // this->currentFile->onBlur();
-        }
+    // Validate that the file was found
+    if(filePair == this->files.end()) {
+        eprintf("file id %d not found!!\n", p_fileId);
+        // svcBreak(USERBREAK_PANIC);
+        return 1;
     }
     
     // Set current file to new file
@@ -169,10 +260,11 @@ void AudioManager::switchFileTo(unsigned int p_fileId) {
 
     // this->shouldPause = false;
     // LightEvent_Signal(&this->playEvent);
-    if(!wasPaused) this->play();
+    // if(!wasPaused) this->play();
 
     // TODO: reset audio position -- done?
 
     // Call onFocus
     // this->currentFile->onFocus();
+    return 0;
 }

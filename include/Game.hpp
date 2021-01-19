@@ -23,6 +23,8 @@ public:
     /// Step the timer
     void stepTimer();
     
+    /// Input processing code
+    void processInput();
     /// Standard update code
     void update();
     /// Late update code, that must always run after update()
@@ -39,9 +41,8 @@ public:
     };
     
     bool isRunning() {  // Should the game continue running?
-        hidScanInput();
-        // Quit if APT says we should, or if user presses the START key
-        return aptMainLoop() && !(hidKeysDown() & KEY_START);
+        // Quit if APT says we should, or if we've set the quit flag
+        return aptMainLoop() && !this->quitFlag;
     };
 private:
     RenderWindow upperScreen;
@@ -52,4 +53,6 @@ private:
     
     u64 lastTime;
     float timeDelta;
+
+    bool quitFlag;
 };

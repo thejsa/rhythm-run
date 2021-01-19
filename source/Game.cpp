@@ -10,6 +10,7 @@
 #include "Entity.hpp"
 
 #include "SceneSplashScreen.hpp"
+#include "SceneGameplay.hpp"
 
 #include <3ds.h>
 #include <memory>
@@ -17,7 +18,7 @@
 #include <citro2d.h>
 
 Game::Game()
-:upperScreen(GFX_TOP, GFX_LEFT), lowerScreen(GFX_BOTTOM, GFX_LEFT)
+:upperScreen(GFX_TOP, GFX_LEFT), lowerScreen(GFX_BOTTOM, GFX_LEFT), quitFlag(false)
 {
 	// Init clock
 	// PLATFORM SPECIFIC
@@ -34,6 +35,11 @@ Game::Game()
 		audioManager,
 		0 // sprite index
 	);
+	std::shared_ptr<SceneGameplay> gameplayScene = std::make_shared<SceneGameplay>(
+		sceneManager,
+		audioManager,
+		"newspapers_for_magicians" // track
+	);
 	// std::shared_ptr<SceneSplashScreen> splashScene2 = std::make_shared<SceneSplashScreen>(
 	// 	sceneManager,
 	// 	audioManager,
@@ -48,18 +54,20 @@ Game::Game()
 	eprintf("adding scenes to manager %x\n", sceneManager);
 
 	unsigned int splashScene1Id = sceneManager.addScene(splashScene1);
+	unsigned int gameplaySceneId = sceneManager.addScene(gameplayScene);
 	// unsigned int splashScene2Id = sceneManager.addScene(splashScene2);
 	// unsigned int splashScene3Id = sceneManager.addScene(splashScene3);
 	
 	// eprintf("setting nextSceneIds %u->%u %u->%u %u->%u\n", splashScene1Id, splashScene2Id, splashScene2Id, splashScene3Id, splashScene3Id, splashScene1Id);
 
 	// just cycle the splash screens until we implement more fun stuff
-	splashScene1->setNextSceneId(splashScene1Id);
+	splashScene1->setNextSceneId(gameplaySceneId);
+	gameplayScene->setNextSceneId(splashScene1Id);
 	// splashScene1->setNextSceneId(splashScene2Id);
 	// splashScene2->setNextSceneId(splashScene3Id);
 	// splashScene3->setNextSceneId(splashScene1Id);
 
-	eprintf("Switching focus to scene %u\n", splashScene1Id);
+	eprintf("Begin by switching focus to scene %u\n", splashScene1Id);
 	sceneManager.switchFocusTo(splashScene1Id);
 }
 
@@ -70,6 +78,20 @@ void Game::stepTimer() {
 	this->lastTime = currentTime;
 	// return timeDelta;
 }
+
+void Game::processInput() {
+	// Respond to user input
+	hidScanInput();
+	
+	if(hidKeysDown() & KEY_START) {
+		eprintf("keyStart -- quit flag!\n");
+		this->quitFlag = true; // return to hbmenu
+	}
+	
+	this->sceneManager.processInput();
+
+	// eprintf("update end\n");
+};
 
 void Game::update() {
 	// ((void)0);

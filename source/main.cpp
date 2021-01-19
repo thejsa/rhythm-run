@@ -9,6 +9,13 @@
 #include "Game.hpp"
 
 int main(int argc_, char *argv_[]) {
+	#ifdef DEBUG
+	// printf("gdbHioDevInit %d\n", gdbHioDevInit());
+	// gdbHioDevInit();
+	// gdbHioDevRedirectStdStreams(true, true, true);
+	// eprintf("Hello from 3DS!\n");
+	#endif
+	
 	// Init libs
 	gfxInitDefault();
 	romfsInit();
@@ -27,11 +34,8 @@ int main(int argc_, char *argv_[]) {
 	Game game;
 
 	while(game.isRunning()) {
-		// Respond to user input
-		hidScanInput();
-		if(hidKeysDown() & KEY_START) break; // return to hbmenu
-
 		// eprintf("aptMainLoop tick\n");
+		game.processInput();
 		game.update();
 		game.lateUpdate();
 		game.draw();
@@ -40,6 +44,10 @@ int main(int argc_, char *argv_[]) {
 	C2D_Fini();
 	C3D_Fini();
 	gfxExit();
+
+	#ifdef DEBUG
+	gdbHioDevExit();
+	#endif
 
 	return 0;
 }

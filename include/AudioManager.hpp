@@ -22,25 +22,27 @@ class AudioManager
 {
 public:
     AudioManager();
+    ~AudioManager();
 
     // Passthrough function to execute audioThread instance method from threadCreate
-    static void proxyAudioThread(void* ctx) {
-        static_cast<AudioManager*>(ctx)->audioThread();
+    static inline void proxyAudioThread(void* p_ctx) {
+        static_cast<AudioManager*>(p_ctx)->audioThread();
     };
     // Passthrough function to execute audioCallback instance method from NDSP
-    static void proxyAudioCallback(void* ctx) {
-        static_cast<AudioManager*>(ctx)->audioCallback();
+    static inline void proxyAudioCallback(void* p_ctx) {
+        static_cast<AudioManager*>(p_ctx)->audioCallback();
     };
 
     // Add file to the state machine, returning its ID
     unsigned int addFile(std::shared_ptr<OggOpusFile> p_file);
     // Transition focus to file
-    void switchFileTo(unsigned int p_fileId);
+    // Retval: 0 for success, otherwise error
+    int switchFileTo(unsigned int p_fileId);
     // Remove file from the state machine
     void removeFile(unsigned int p_fileId);
 
     void cleanup() {
-        this->shouldQuit = true;
+        this->shouldStop = true;
         threadJoin (this->threadId, UINT64_MAX);
         threadFree (this->threadId);
 
@@ -50,23 +52,66 @@ public:
         ndspExit();
     }
 
-    void play() {
-        eprintf("pl\n");
-        this->shouldPause = false;
-        LightEvent_Signal(&this->playEvent);
-    }
-    void pause() {
+    /// Stop playback and free the playback thread.
+    void stop();
+    /// Is playback 'paused' (whether stopped or not playing)?
+    inline bool isStopped() {
+        return this->shouldStop;
+    };
+    inline bool isPaused() {
+        return this->isStopped() ? true : ndspChnIsPaused(BGM_CHANNEL);
+    };
+
+    void play();
+    // void pause() {
+    //     this->shouldStop = true;
+    // }
+    inline void pause() {
         eprintf("pa\n");
-        this->shouldPause = true;
+        // this->shouldPause = true;
+        ndspChnSetPaused(BGM_CHANNEL, true);
+    };
+    inline void unpause() {
+        eprintf("upa\n");
+        // this->shouldPause = true;
+        ndspChnSetPaused(BGM_CHANNEL, false);
+        LightEvent_Signal(&this->audioEvent);
+    };
+    inline void togglePause() {
+        eprintf("tpa\n");
+        // this->shouldPause = true;
+        if(!this->shouldStop)
+            ndspChnSetPaused(BGM_CHANNEL, !this->isPaused());
+        LightEvent_Signal(&this->audioEvent);
+    };
+
+    /// LightEvent for signalling the audio thread
+    LightEvent audioEvent;
+    /// Should playback be stopped?
+    bool shouldStop;
+    /// Is playback currently switching audio file?
+    bool isSkipping;
+
+    inline void audioCallback() {
+        // Do not signal the audio thread if we want to interrupt its work
+        // (e.g, when playback is stopped or if we're changing audio data)
+        if(this->shouldStop || this->isSkipping)
+            return;
+        
+        // Signal the audio thread to do more work
+        LightEvent_Signal(&audioEvent);
+        // svcSleepThread(0);
     }
 private:
-    LightEvent audioEvent;
+    void initPlayback();
+    void doPlayback();
+
     LightEvent playEvent;
 
     // default to paused
     // todo: switch to std::atomic
-    bool shouldPause = true;
-    bool shouldQuit  = false;
+    // bool shouldPause = true;
+    // bool shouldQuit  = false;
 
     ndspWaveBuf waveBufs[3];
     int16_t *audioBuffer = nullptr;
@@ -76,11 +121,6 @@ private:
     bool fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_waveBuf);
 
     void audioThread();
-    void audioCallback() {
-        if(shouldQuit) return;
-        printf("c\n");
-        LightEvent_Signal(&this->audioEvent);
-    };
     
     /// Stores all files
     std::unordered_map<unsigned int, std::shared_ptr<OggOpusFile>> files;
@@ -90,6 +130,8 @@ private:
     unsigned int fileCounter;
 
     // Defines
+    static constexpr auto BGM_CHANNEL = 0;
+    
     static constexpr auto SAMPLE_RATE = 48000;
     static constexpr auto BUFFER_MS   = 120;
 
@@ -101,6 +143,6 @@ private:
     static constexpr auto WAVEBUF_SIZE = SAMPLES_PER_BUF * CHANNELS_PER_SAMPLE * sizeof(std::int16_t);
     
     // threading
-    static constexpr auto THREAD_AFFINITY = -1;
+    static constexpr auto THREAD_AFFINITY = -2;
     static constexpr auto THREAD_STACK_SIZE = 32 * 1024;
 };

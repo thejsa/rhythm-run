@@ -13,11 +13,12 @@
 #include "Scene.hpp"
 #include "Entity.hpp"
 
-class SceneSplashScreen : public Scene
+class SceneGameplay : public Scene
 {
 public:
-	SceneSplashScreen(SceneManager& p_sceneManager, AudioManager& p_audioManager, unsigned int p_spriteIndex);
-	// SceneSplashScreen(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
+	SceneGameplay(SceneManager& p_sceneManager,
+	AudioManager& p_audioManager, const char* p_trackName);
+	// SceneGameplay(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
 	
     // Implement the Scene interface
     void onCreate() override;
@@ -39,7 +40,7 @@ private:
     SceneManager& sceneManager;
     AudioManager& audioManager;
 
-	unsigned int splashImageIndex;
+	const char* trackName;
 
     /// Which scene will we transition to after the splash screen?
     unsigned int nextSceneId;
