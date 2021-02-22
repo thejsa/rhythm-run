@@ -13,12 +13,12 @@
 #include "Scene.hpp"
 #include "Entity.hpp"
 
-class SceneGameplay : public Scene
+class SceneMenu : public Scene
 {
 public:
-	SceneGameplay(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager, const char* p_trackName);
-	// SceneGameplay(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
+	SceneMenu(SceneManager& p_sceneManager,
+	AudioManager& p_audioManager);
+	// SceneMenu(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
 	
     // Implement the Scene interface
     void onCreate() override;
@@ -26,7 +26,7 @@ public:
     void onFocus() override;
     void onBlur() override; // not used
 	
-	void setNextSceneId(unsigned int p_id);
+	// void setNextSceneId(unsigned int p_id);
 
     void processInput() override;
     void update(float p_timeDelta) override;
@@ -40,22 +40,16 @@ private:
     SceneManager& sceneManager;
     AudioManager& audioManager;
 
-	const char* trackName;
-
     /// Which scene will we transition to after the splash screen?
-    unsigned int nextSceneId;
+    // unsigned int nextSceneId;
     /// For how long should the splash screen stay active?
-    float durationEnd;
+    // float durationEnd;
     /// For how long has the splash screen been displayed?
-    float durationElapsed;
+    // float durationElapsed;
 
 	C2D_SpriteSheet spriteSheet;
 
 	std::shared_ptr<Entity> splashImageEntity;
     std::shared_ptr<OggOpusFile> opusFile;
     unsigned int audioId;
-
-    bool isJumping;
-    float velocityX, velocityY;
-    float accelX, accelY;
 };

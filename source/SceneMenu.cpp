@@ -1,17 +1,16 @@
-#include "SceneSplashScreen.hpp"
+#include "SceneMenu.hpp"
 
-SceneSplashScreen::SceneSplashScreen(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager, unsigned int p_spriteIndex)
-:sceneManager(p_sceneManager), audioManager(p_audioManager), splashImageIndex(p_spriteIndex),
-	nextSceneId(0), durationEnd(1.0f), durationElapsed(0.0f)
+SceneMenu::SceneMenu(SceneManager& p_sceneManager,
+	AudioManager& p_audioManager)
+:sceneManager(p_sceneManager), audioManager(p_audioManager)
 {};
 
-void SceneSplashScreen::onCreate()
+void SceneMenu::onCreate()
 {
 	// Load sprite sheet
 	eprintf("OnCreate\n");
 
-	this->spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/splash.t3x");
+	this->spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/SceneMenu.t3x");
 	if (!spriteSheet) {
 		eprintf("failed to load sprite sheet\n");
 		// justSpin();
@@ -26,7 +25,7 @@ void SceneSplashScreen::onCreate()
 	// 	scale = 1.0f;
 	// }
 	this->splashImageEntity = std::make_shared<Entity>(200, 120, // centre of screen
-		this->spriteSheet, this->splashImageIndex, // which sheet & image to load
+		this->spriteSheet, 1, // which sheet & image to load
 		0.5f, 0.5f, // sprite's origin
 		1.0f, 1.0f, // scale
 		0.0f //rotation
@@ -36,7 +35,12 @@ void SceneSplashScreen::onCreate()
 	// soloud.init();
 	// sample.load("romfs:/sample.wav");
 	int error = 0;
-	this->opusFile = std::shared_ptr<OggOpusFile>(op_open_file ("romfs:/sample.opus", &error), op_free);
+
+	char bgmPath[128];
+	snprintf(bgmPath, std::extent_v<decltype(bgmPath)>, "romfs:/tracks/newspapers_for_magicians.opus");
+	eprintf("opening %s\n", bgmPath);
+
+	this->opusFile = std::shared_ptr<OggOpusFile>(op_open_file (bgmPath, &error), op_free);
 
 	if (error)
 	{
@@ -51,11 +55,11 @@ void SceneSplashScreen::onCreate()
 	eprintf("Fini\n");
 }
 
-void SceneSplashScreen::onFocus()
+void SceneMenu::onFocus()
 {
 	// eprintf("Focus\n");
 	// Reset duration timer
-	this->durationElapsed = 0.0f;
+	// this->durationElapsed = 0.0f;
 
 	if(this->opusFile) {
 		eprintf("switch to audio %d\n", this->audioId);
@@ -70,7 +74,7 @@ void SceneSplashScreen::onFocus()
 	// soloud.play(sample);
 }
 
-void SceneSplashScreen::onBlur()
+void SceneMenu::onBlur()
 {
 	if(this->opusFile) {
 		this->audioManager.pause();
@@ -78,7 +82,7 @@ void SceneSplashScreen::onBlur()
 	}
 }
 
-void SceneSplashScreen::onDestroy() {
+void SceneMenu::onDestroy() {
 	// soloud.deinit();
 	// if(this->opusFile) op_free(this->opusFile);
 	// smart pointer means we don't need to?
@@ -86,13 +90,13 @@ void SceneSplashScreen::onDestroy() {
 	this->audioManager.stop();
 }
 
-void SceneSplashScreen::setNextSceneId(unsigned int p_id)
-{
-	eprintf("%u\n", p_id);
-	this->nextSceneId = p_id;
-}
+// void SceneMenu::setNextSceneId(unsigned int p_id)
+// {
+// 	eprintf("%u\n", p_id);
+// 	this->nextSceneId = p_id;
+// }
 
-void SceneSplashScreen::processInput()
+void SceneMenu::processInput()
 {
 	// Quit if APT says we should, or if user presses the START key
 	u32 kDown = hidKeysDown();
@@ -126,27 +130,28 @@ void SceneSplashScreen::processInput()
 	};
 }
 
-void SceneSplashScreen::update(float p_timeDelta)
+void SceneMenu::update(float p_timeDelta)
 {
+	((void)0);
 	// eprintf("Update, delta: %f\n", p_timeDelta);
-	this->durationElapsed += p_timeDelta;
+	// this->durationElapsed += p_timeDelta;
 	
 	// change scene if splash screen should end
 	// if(this->durationElapsed >= this->durationEnd)
 	// 	sceneManager.switchFocusTo(this->nextSceneId);
-	if(this->durationElapsed >= this->durationEnd) {
-		eprintf("durationElapsed: + %.2f s\n", this->durationElapsed);
-		sceneManager.switchFocusTo(this->nextSceneId);
-		this->durationElapsed = 0;
-	}
+	// if(this->durationElapsed >= this->durationEnd) {
+		// eprintf("durationElapsed: + %.2f s\n", this->durationElapsed);
+		// this->durationElapsed = 0;
+		// sceneManager.switchFocusTo(this->nextSceneId);
+	// }
 }
 
-void SceneSplashScreen::drawUpper(RenderWindow& p_renderWindow) {
+void SceneMenu::drawUpper(RenderWindow& p_renderWindow) {
 	// eprintf("DrawU\n");
 	p_renderWindow.clear(C2D_Color32(0,0,0,0));
 	p_renderWindow.draw(this->splashImageEntity);
 }
-void SceneSplashScreen::drawLower(RenderWindow& p_renderWindow) {
+void SceneMenu::drawLower(RenderWindow& p_renderWindow) {
 	// ((void)0);
 	p_renderWindow.clear(C2D_Color32(0,0,0,0));
 	// eprintf("DrawL\n");

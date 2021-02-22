@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "Drawable.hpp"
+#include "Geometry.hpp"
 
 /**
  * Entity class
@@ -37,6 +38,24 @@ public:
     // Get original dimensions (before scaling)
     float get1xWidth() { return sprite.image.subtex->width; };
     float get1xHeight() { return sprite.image.subtex->height; };
+
+    // Get bounding box
+    // rect_t getRect() {
+    //     float halfWidth = this->getWidth() / 2;
+    //     float halfHeight = this->getHeight() / 2;
+
+    //     return (rect_t) {
+    //         sprite.params.pos.x - halfWidth,
+    //         sprite.params.pos.y - halfHeight,
+    //         sprite.params.pos.x + halfWidth,
+    //         sprite.params.pos.y + halfHeight
+    //     };
+    // }
+
+    // bool intersectsWithRect(rect_t p_rect) {
+
+    // }
+
     size_t getSpriteIndex() { return spriteIndex; };
 
     /// @brief Set sprite position on screen

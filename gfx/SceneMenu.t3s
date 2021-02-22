@@ -1,0 +1,4 @@
+--atlas -f rgba8888 -z auto
+splash_screen.png
+btn_240x32_std.png
+btn_240x32_pressed.png

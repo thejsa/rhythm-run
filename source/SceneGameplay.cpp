@@ -3,7 +3,8 @@
 SceneGameplay::SceneGameplay(SceneManager& p_sceneManager,
 	AudioManager& p_audioManager, const char* p_trackName)
 :sceneManager(p_sceneManager), audioManager(p_audioManager), trackName(p_trackName),
-	nextSceneId(0), durationEnd(60.0f), durationElapsed(0.0f)
+	nextSceneId(0), durationEnd(600.0f), durationElapsed(0.0f),
+	isJumping(false), velocityX(0), velocityY(0), accelX(0), accelY(0)
 {};
 
 void SceneGameplay::onCreate()
@@ -26,10 +27,16 @@ void SceneGameplay::onCreate()
 	// 	scale = 1.0f;
 	// }
 	this->splashImageEntity = std::make_shared<Entity>(200, 120, // centre of screen
-		this->spriteSheet, 1, // which sheet & image to load
+		this->spriteSheet, 2, // which sheet & image to load
 		0.5f, 0.5f, // sprite's origin
-		1.0f, 1.0f, // scale
+		1.5f, 1.5f, // scale
 		0.0f //rotation
+	);
+	
+	// reposition to bottom left of screen
+	this->splashImageEntity->setPosition(
+		0 + this->splashImageEntity->getWidth() / 2,
+		240 - this->splashImageEntity->getHeight() / 2
 	);
 
 	// Play audio
@@ -101,20 +108,31 @@ void SceneGameplay::processInput()
 {
 	// Quit if APT says we should, or if user presses the START key
 	u32 kDown = hidKeysDown();
+	u32 kHeld = hidKeysHeld();
 	if(kDown & KEY_A) {
 		eprintf("keyA\n");
-		this->audioManager.pause();
+		// if(!isJumping) {
+			this->isJumping = true;
+			this->velocityY = 294.3f;
+			this->accelY = -98.1f * 2.5f;
+		// }
+		// this->audioManager.pause();
 	};
 	if(kDown & KEY_B) {
 		eprintf("keyB\n");
-		this->audioManager.unpause();
+		// this->audioManager.unpause();
+		eprintf("vel: %.2f, %.2f; acc: %.2f, %.2f; isJumping: %s\n",
+			this->velocityX, this->velocityY,
+			this->accelX, this->accelY,
+			(isJumping ? "true" : "false")
+		);
 	};
 	if(kDown & KEY_Y) {
-		eprintf("keyY\n");
+		eprintf("keyY pause audio toggle\n");
 		this->audioManager.togglePause();
 	};
 	if(kDown & KEY_L) {
-		eprintf("keyL\n");
+		eprintf("keyL stop audio\n");
 		if(!this->audioManager.isStopped()) {
 			this->audioManager.stop();
 		} else {
@@ -122,13 +140,22 @@ void SceneGameplay::processInput()
 		}
 	};
 	if(kDown & KEY_R) {
-		eprintf("keyR\n");
+		eprintf("keyR un-stop audio/begin play\n");
 		if(this->audioManager.isStopped()) {
 			this->audioManager.play();
 		} else {
 			eprintf("already playing!\n");
 		}
 	};
+
+	if(kHeld & KEY_RIGHT) {
+		// eprintf("keyRight\n");
+		this->splashImageEntity->move(2, 0);
+	}
+	if(kHeld & KEY_LEFT) {
+		// eprintf("keyLeft\n");
+		this->splashImageEntity->move(-2, 0);
+	}
 }
 
 void SceneGameplay::update(float p_timeDelta)
@@ -144,15 +171,60 @@ void SceneGameplay::update(float p_timeDelta)
 		this->durationElapsed = 0;
 		sceneManager.switchFocusTo(this->nextSceneId);
 	}
+
+	// calculate new velocity
+	this->velocityX = std::clamp<float>(
+		this->velocityX + (this->accelX * p_timeDelta),
+		-10000,
+		10000
+	);
+	this->velocityY = std::clamp<float>(
+		this->velocityY + (this->accelY * p_timeDelta),
+		-10000,
+		10000
+	);
+
+	// calculate new position
+	float newX = this->splashImageEntity->getX() + (this->velocityX * p_timeDelta);
+	float newY = this->splashImageEntity->getY() - (this->velocityY * p_timeDelta);
+
+	// finish jump
+	if(this->isJumping && (
+		newY <   0 + this->splashImageEntity->getHeight() / 2
+	)) {
+		eprintf("jump peak, current velY: %.2f; newPos would be: %.2f, %.2f\n", this->velocityY, newX, newY);
+		this->velocityY = 0.0f;
+	}
+	if(this->isJumping && (
+		newY > 240 - this->splashImageEntity->getHeight() / 2
+		// || newY <   0 + this->splashImageEntity->getHeight() / 2
+	)) {
+		eprintf("end jump, would be at: %.2f, %.2f\n", newX, newY);
+		this->isJumping = false;
+		this->velocityY = 0.0f;
+		this->accelY = 0.0f;
+	}
+
+	// move, but keep in scene
+	this->splashImageEntity->setPosition(
+		std::clamp<float>(newX,
+			0   + this->splashImageEntity->getWidth() / 2,
+			400 - this->splashImageEntity->getWidth() / 2
+		),
+		std::clamp<float>(newY,
+			0   + this->splashImageEntity->getHeight() / 2,
+			240 - this->splashImageEntity->getHeight() / 2
+		)
+	);
 }
 
 void SceneGameplay::drawUpper(RenderWindow& p_renderWindow) {
 	// eprintf("DrawU\n");
-	p_renderWindow.clear(C2D_Color32(0,0,0,0));
+	p_renderWindow.clear(C2D_Color32(255,255,255,255));
 	p_renderWindow.draw(this->splashImageEntity);
 }
 void SceneGameplay::drawLower(RenderWindow& p_renderWindow) {
 	// ((void)0);
-	p_renderWindow.clear(C2D_Color32(0,0,0,0));
+	p_renderWindow.clear(C2D_Color32(255,255,255,255));
 	// eprintf("DrawL\n");
 } // no-op
