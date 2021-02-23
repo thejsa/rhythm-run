@@ -22,12 +22,12 @@ Game::Game()
 {
 	// Init clock
 	// PLATFORM SPECIFIC
-	this->lastTime = osGetTime(); // milliseconds
-	this->timeDelta = 0.0f;
+	lastTime = osGetTime(); // milliseconds
+	timeDelta = 0.0f;
 
 	// these are automatic?
-	// this->sceneManager = SceneManager();
-	// this->audioManager = AudioManager();
+	// sceneManager = SceneManager();
+	// audioManager = AudioManager();
 	
 	// Init test scene
 	std::shared_ptr<SceneSplashScreen> splashScene1 = std::make_shared<SceneSplashScreen>(
@@ -73,9 +73,9 @@ Game::Game()
 
 void Game::stepTimer() {
 	u64 currentTime = osGetTime(); // ms
-	this->timeDelta = (currentTime - this->lastTime) / 1000.0f; // seconds
-	// eprintf("current: %llu, last: %llu, delta: %f\n", currentTime, this->lastTime, this->timeDelta);
-	this->lastTime = currentTime;
+	timeDelta = (currentTime - lastTime) / 1000.0f; // seconds
+	// eprintf("current: %llu, last: %llu, delta: %f\n", currentTime, lastTime, timeDelta);
+	lastTime = currentTime;
 	// return timeDelta;
 }
 
@@ -85,19 +85,19 @@ void Game::processInput() {
 	
 	if(hidKeysDown() & KEY_START) {
 		eprintf("keyStart -- quit flag!\n");
-		this->quitFlag = true; // return to hbmenu
+		quitFlag = true; // return to hbmenu
 	}
 	
-	this->sceneManager.processInput();
+	sceneManager.processInput();
 
 	// eprintf("update end\n");
 };
 
 void Game::update() {
 	// ((void)0);
-	this->stepTimer();
+	stepTimer();
 	
-	this->sceneManager.update(this->timeDelta);
+	sceneManager.update(timeDelta);
 
 	// eprintf("update end\n");
 };
@@ -106,16 +106,16 @@ void Game::lateUpdate() { ((void)0); };
 
 void Game::drawUpper() {
 	// eprintf("BeginDrawU\n");
-	this->upperScreen.beginDraw();
-	this->sceneManager.drawUpper(this->upperScreen);
-	this->upperScreen.endDraw();
+	upperScreen.beginDraw();
+	sceneManager.drawUpper(upperScreen);
+	upperScreen.endDraw();
 	// eprintf("End\n");
 };
 
 void Game::drawLower() {
 	// eprintf("BeginDrawL\n");
-	this->lowerScreen.beginDraw();
-	this->sceneManager.drawLower(this->lowerScreen);
-	this->lowerScreen.endDraw();
+	lowerScreen.beginDraw();
+	sceneManager.drawLower(lowerScreen);
+	lowerScreen.endDraw();
 	// eprintf("End\n");
 };

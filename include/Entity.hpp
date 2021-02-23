@@ -71,7 +71,7 @@ public:
     /// @brief Scale the sprite by some scale factor relative to its current size
     /// @param a_scaleX, a_scaleY Scale factor in each dimension
     inline void scale(float a_scaleX, float a_scaleY) { C2D_SpriteScale(&sprite, a_scaleX, a_scaleY); };
-    // void scale(float a_scaleX, float a_scaleY) { C2D_SpriteSetScale(&sprite, this->getScaleX() * a_scaleX, this->getScaleY() * a_scaleY); };
+    // void scale(float a_scaleX, float a_scaleY) { C2D_SpriteSetScale(&sprite, getScaleX() * a_scaleX, getScaleY() * a_scaleY); };
     /// @brief Rotate the sprite (relative to current rotation)
     /// @param a_radians Rotation in radians
     inline void rotate(float a_radians) { C2D_SpriteRotate(&sprite, a_radians); };

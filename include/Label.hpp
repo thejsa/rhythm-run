@@ -45,10 +45,10 @@ public:
         return height;
     }
     float getCenterX() {
-        return this->getWidth() / 2.0f;
+        return getWidth() / 2.0f;
     };
     float getCenterY(){
-        return this->getHeight() / 2.0f;
+        return getHeight() / 2.0f;
     };
 
     void setPosition(float a_x, float a_y) { posX = a_x; posY = a_y; };

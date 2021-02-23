@@ -36,13 +36,13 @@ public:
     void drawLower();
     /// Render a full dual-screen frame
     void draw() {
-        this->drawUpper();
-        // this->drawLower();
+        drawUpper();
+        // drawLower();
     };
     
     bool isRunning() {  // Should the game continue running?
         // Quit if APT says we should, or if we've set the quit flag
-        return aptMainLoop() && !this->quitFlag;
+        return aptMainLoop() && !quitFlag;
     };
 private:
     RenderWindow upperScreen;

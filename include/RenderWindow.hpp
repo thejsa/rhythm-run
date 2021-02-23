@@ -18,9 +18,9 @@ public:
         eprintf("Init %d/%d\n", a_screen, a_stereoSide);
         renderTarget = C2D_CreateScreenTarget(a_screen, a_stereoSide);
 
-        // this->beginDraw();
-        // this->clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
-        // this->endDraw();
+        // beginDraw();
+        // clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
+        // endDraw();
     };
 
     /// Update
@@ -33,7 +33,7 @@ public:
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_SceneBegin(renderTarget);
 
-        this->clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
+        clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
     };
 
     /// Draw something

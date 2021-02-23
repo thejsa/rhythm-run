@@ -30,10 +30,10 @@ public:
         // Therefore, this checks that neither of the above conditions are met.
 
         return !(
-            (this->topLeft.x >= a_rect.lowerRight.x) ||
-            (a_rect.topLeft.x >= this->lowerRight.x) ||
-            (this->topLeft.y <= a_rect.lowerRight.y) ||
-            (a_rect.topLeft.y <= this->lowerRight.y)
+            (topLeft.x >= a_rect.lowerRight.x) ||
+            (a_rect.topLeft.x >= lowerRight.x) ||
+            (topLeft.y <= a_rect.lowerRight.y) ||
+            (a_rect.topLeft.y <= lowerRight.y)
         );
     }
 

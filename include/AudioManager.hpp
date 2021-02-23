@@ -42,9 +42,9 @@ public:
     void removeFile(unsigned int a_fileId);
 
     void cleanup() {
-        this->shouldStop = true;
-        threadJoin (this->threadId, UINT64_MAX);
-        threadFree (this->threadId);
+        shouldStop = true;
+        threadJoin (threadId, UINT64_MAX);
+        threadFree (threadId);
 
         ndspChnWaveBufClear(0);
         linearFree(audioBuffer);
@@ -56,33 +56,33 @@ public:
     void stop();
     /// Is playback 'paused' (whether stopped or not playing)?
     inline bool isStopped() {
-        return this->shouldStop;
+        return shouldStop;
     };
     inline bool isPaused() {
-        return this->isStopped() ? true : ndspChnIsPaused(BGM_CHANNEL);
+        return isStopped() ? true : ndspChnIsPaused(BGM_CHANNEL);
     };
 
     void play();
     // void pause() {
-    //     this->shouldStop = true;
+    //     shouldStop = true;
     // }
     inline void pause() {
         eprintf("pa\n");
-        // this->shouldPause = true;
+        // shouldPause = true;
         ndspChnSetPaused(BGM_CHANNEL, true);
     };
     inline void unpause() {
         eprintf("upa\n");
-        // this->shouldPause = true;
+        // shouldPause = true;
         ndspChnSetPaused(BGM_CHANNEL, false);
-        LightEvent_Signal(&this->audioEvent);
+        LightEvent_Signal(&audioEvent);
     };
     inline void togglePause() {
         eprintf("tpa\n");
-        // this->shouldPause = true;
-        if(!this->shouldStop)
-            ndspChnSetPaused(BGM_CHANNEL, !this->isPaused());
-        LightEvent_Signal(&this->audioEvent);
+        // shouldPause = true;
+        if(!shouldStop)
+            ndspChnSetPaused(BGM_CHANNEL, !isPaused());
+        LightEvent_Signal(&audioEvent);
     };
 
     /// LightEvent for signalling the audio thread
@@ -95,7 +95,7 @@ public:
     inline void audioCallback() {
         // Do not signal the audio thread if we want to interrupt its work
         // (e.g, when playback is stopped or if we're changing audio data)
-        if(this->shouldStop || this->isSkipping)
+        if(shouldStop || isSkipping)
             return;
         
         // Signal the audio thread to do more work
