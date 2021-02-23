@@ -11,18 +11,18 @@
 
 #include "Label.hpp"
 
-Label::Label(const char *p_text, float p_x, float p_y, u32 p_flags = 0, float p_scaleX = 0.5f, float p_scaleY = 0.5f, size_t p_bufSize = 0)
-:textFlags(p_flags), posX(p_x), posY(p_y), scaleX(p_scaleX), scaleY(p_scaleY)
+Label::Label(const char *a_text, float a_x, float a_y, u32 a_flags = 0, float a_scaleX = 0.5f, float a_scaleY = 0.5f, size_t a_bufSize = 0)
+:textFlags(a_flags), posX(a_x), posY(a_y), scaleX(a_scaleX), scaleY(a_scaleY)
 {
     // default buffer size to strlen, if not set
-    if(!p_bufSize) p_bufSize = strlen(p_text) + 1;
-    eprintf("init, str: %s, len: %d\n", p_text, p_bufSize);
+    if(!a_bufSize) a_bufSize = strlen(a_text) + 1;
+    eprintf("init, str: %s, len: %d\n", a_text, a_bufSize);
 
     // Create a text buffer
-    textBuf = C2D_TextBufNew(p_bufSize);
+    textBuf = C2D_TextBufNew(a_bufSize);
 
     // Parse the text string and store in the buffer
-    C2D_TextParse(&text, textBuf, p_text);
+    C2D_TextParse(&text, textBuf, a_text);
     // Optimise the text string for fast rendering
     C2D_TextOptimize(&text);
     eprintf("done init\n");

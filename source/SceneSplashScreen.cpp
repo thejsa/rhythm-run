@@ -1,8 +1,8 @@
 #include "SceneSplashScreen.hpp"
 
-SceneSplashScreen::SceneSplashScreen(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager, unsigned int p_spriteIndex)
-:sceneManager(p_sceneManager), audioManager(p_audioManager), splashImageIndex(p_spriteIndex),
+SceneSplashScreen::SceneSplashScreen(SceneManager& a_sceneManager,
+	AudioManager& a_audioManager, unsigned int a_spriteIndex)
+:sceneManager(a_sceneManager), audioManager(a_audioManager), splashImageIndex(a_spriteIndex),
 	nextSceneId(0), durationEnd(1.0f), durationElapsed(0.0f)
 {};
 
@@ -86,10 +86,10 @@ void SceneSplashScreen::onDestroy() {
 	this->audioManager.stop();
 }
 
-void SceneSplashScreen::setNextSceneId(unsigned int p_id)
+void SceneSplashScreen::setNextSceneId(unsigned int a_id)
 {
-	eprintf("%u\n", p_id);
-	this->nextSceneId = p_id;
+	eprintf("%u\n", a_id);
+	this->nextSceneId = a_id;
 }
 
 void SceneSplashScreen::processInput()
@@ -126,10 +126,10 @@ void SceneSplashScreen::processInput()
 	};
 }
 
-void SceneSplashScreen::update(float p_timeDelta)
+void SceneSplashScreen::update(float a_timeDelta)
 {
-	// eprintf("Update, delta: %f\n", p_timeDelta);
-	this->durationElapsed += p_timeDelta;
+	// eprintf("Update, delta: %f\n", a_timeDelta);
+	this->durationElapsed += a_timeDelta;
 	
 	// change scene if splash screen should end
 	// if(this->durationElapsed >= this->durationEnd)
@@ -141,13 +141,13 @@ void SceneSplashScreen::update(float p_timeDelta)
 	}
 }
 
-void SceneSplashScreen::drawUpper(RenderWindow& p_renderWindow) {
+void SceneSplashScreen::drawUpper(RenderWindow& a_renderWindow) {
 	// eprintf("DrawU\n");
-	p_renderWindow.clear(C2D_Color32(0,0,0,0));
-	p_renderWindow.draw(this->splashImageEntity);
+	a_renderWindow.clear(C2D_Color32(0,0,0,0));
+	a_renderWindow.draw(this->splashImageEntity);
 }
-void SceneSplashScreen::drawLower(RenderWindow& p_renderWindow) {
+void SceneSplashScreen::drawLower(RenderWindow& a_renderWindow) {
 	// ((void)0);
-	p_renderWindow.clear(C2D_Color32(0,0,0,0));
+	a_renderWindow.clear(C2D_Color32(0,0,0,0));
 	// eprintf("DrawL\n");
 } // no-op

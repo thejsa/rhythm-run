@@ -25,21 +25,21 @@ public:
     ~AudioManager();
 
     // Passthrough function to execute audioThread instance method from threadCreate
-    static inline void proxyAudioThread(void* p_ctx) {
-        static_cast<AudioManager*>(p_ctx)->audioThread();
+    static inline void proxyAudioThread(void* a_ctx) {
+        static_cast<AudioManager*>(a_ctx)->audioThread();
     };
     // Passthrough function to execute audioCallback instance method from NDSP
-    static inline void proxyAudioCallback(void* p_ctx) {
-        static_cast<AudioManager*>(p_ctx)->audioCallback();
+    static inline void proxyAudioCallback(void* a_ctx) {
+        static_cast<AudioManager*>(a_ctx)->audioCallback();
     };
 
     // Add file to the state machine, returning its ID
-    unsigned int addFile(std::shared_ptr<OggOpusFile> p_file);
+    unsigned int addFile(std::shared_ptr<OggOpusFile> a_file);
     // Transition focus to file
     // Retval: 0 for success, otherwise error
-    int switchFileTo(unsigned int p_fileId);
+    int switchFileTo(unsigned int a_fileId);
     // Remove file from the state machine
-    void removeFile(unsigned int p_fileId);
+    void removeFile(unsigned int a_fileId);
 
     void cleanup() {
         this->shouldStop = true;
@@ -118,7 +118,7 @@ private:
     
     Thread threadId;
 
-    bool fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_waveBuf);
+    bool fillBuffer(OggOpusFile *const a_opusFile, ndspWaveBuf &a_waveBuf);
 
     void audioThread();
     

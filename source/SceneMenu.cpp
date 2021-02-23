@@ -1,8 +1,8 @@
 #include "SceneMenu.hpp"
 
-SceneMenu::SceneMenu(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager)
-:sceneManager(p_sceneManager), audioManager(p_audioManager)
+SceneMenu::SceneMenu(SceneManager& a_sceneManager,
+	AudioManager& a_audioManager)
+:sceneManager(a_sceneManager), audioManager(a_audioManager)
 {};
 
 void SceneMenu::onCreate()
@@ -90,10 +90,10 @@ void SceneMenu::onDestroy() {
 	this->audioManager.stop();
 }
 
-// void SceneMenu::setNextSceneId(unsigned int p_id)
+// void SceneMenu::setNextSceneId(unsigned int a_id)
 // {
-// 	eprintf("%u\n", p_id);
-// 	this->nextSceneId = p_id;
+// 	eprintf("%u\n", a_id);
+// 	this->nextSceneId = a_id;
 // }
 
 void SceneMenu::processInput()
@@ -130,11 +130,11 @@ void SceneMenu::processInput()
 	};
 }
 
-void SceneMenu::update(float p_timeDelta)
+void SceneMenu::update(float a_timeDelta)
 {
 	((void)0);
-	// eprintf("Update, delta: %f\n", p_timeDelta);
-	// this->durationElapsed += p_timeDelta;
+	// eprintf("Update, delta: %f\n", a_timeDelta);
+	// this->durationElapsed += a_timeDelta;
 	
 	// change scene if splash screen should end
 	// if(this->durationElapsed >= this->durationEnd)
@@ -146,13 +146,13 @@ void SceneMenu::update(float p_timeDelta)
 	// }
 }
 
-void SceneMenu::drawUpper(RenderWindow& p_renderWindow) {
+void SceneMenu::drawUpper(RenderWindow& a_renderWindow) {
 	// eprintf("DrawU\n");
-	p_renderWindow.clear(C2D_Color32(0,0,0,0));
-	p_renderWindow.draw(this->splashImageEntity);
+	a_renderWindow.clear(C2D_Color32(0,0,0,0));
+	a_renderWindow.draw(this->splashImageEntity);
 }
-void SceneMenu::drawLower(RenderWindow& p_renderWindow) {
+void SceneMenu::drawLower(RenderWindow& a_renderWindow) {
 	// ((void)0);
-	p_renderWindow.clear(C2D_Color32(0,0,0,0));
+	a_renderWindow.clear(C2D_Color32(0,0,0,0));
 	// eprintf("DrawL\n");
 } // no-op

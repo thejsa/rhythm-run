@@ -20,7 +20,7 @@
 class Label : public Drawable
 {
 public:
-    Label(const char *p_text, float p_x, float p_y, u32 p_flags, float p_scaleX, float p_scaleY, size_t p_bufSize);
+    Label(const char *a_text, float a_x, float a_y, u32 a_flags, float a_scaleX, float a_scaleY, size_t a_bufSize);
     Label() {}; // default empty constructor
 
     // Destructor -- clean up text buf
@@ -51,15 +51,15 @@ public:
         return this->getHeight() / 2.0f;
     };
 
-    void setPosition(float p_x, float p_y) { posX = p_x; posY = p_y; };
+    void setPosition(float a_x, float a_y) { posX = a_x; posY = a_y; };
 
-    void move(float p_dX, float p_dY) {
-        posX += p_dX;
-        posY += p_dY;
+    void move(float a_dX, float a_dY) {
+        posX += a_dX;
+        posY += a_dY;
     };
-    void scale(float p_scaleX, float p_scaleY) {
-        scaleX *= p_scaleX;
-        scaleY *= p_scaleY;
+    void scale(float a_scaleX, float a_scaleY) {
+        scaleX *= a_scaleX;
+        scaleY *= a_scaleY;
     };
 
     bool draw() {

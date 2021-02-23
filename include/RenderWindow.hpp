@@ -12,11 +12,11 @@
 class RenderWindow
 {
 public:
-    RenderWindow(const gfxScreen_t p_screen = GFX_BOTTOM, const gfx3dSide_t p_stereoSide = GFX_LEFT)
-    :renderTarget(NULL), screen(p_screen), stereoSide(p_stereoSide)
+    RenderWindow(const gfxScreen_t a_screen = GFX_BOTTOM, const gfx3dSide_t a_stereoSide = GFX_LEFT)
+    :renderTarget(NULL), screen(a_screen), stereoSide(a_stereoSide)
     {
-        eprintf("Init %d/%d\n", p_screen, p_stereoSide);
-        renderTarget = C2D_CreateScreenTarget(p_screen, p_stereoSide);
+        eprintf("Init %d/%d\n", a_screen, a_stereoSide);
+        renderTarget = C2D_CreateScreenTarget(a_screen, a_stereoSide);
 
         // this->beginDraw();
         // this->clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
@@ -37,8 +37,8 @@ public:
     };
 
     /// Draw something
-    void draw(const std::shared_ptr<Drawable> p_drawable) {
-        p_drawable->draw();
+    void draw(const std::shared_ptr<Drawable> a_drawable) {
+        a_drawable->draw();
     };
 
     /// End drawing
@@ -48,9 +48,9 @@ public:
     };
 
     /// Clear the window with a particular colour
-    void clear(u32 p_color) {
+    void clear(u32 a_color) {
         // eprintf("clear!\n");
-        C2D_TargetClear(renderTarget, p_color);
+        C2D_TargetClear(renderTarget, a_color);
     };
 private:
     C3D_RenderTarget* renderTarget;

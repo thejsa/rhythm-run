@@ -16,8 +16,8 @@
 class SceneSplashScreen : public Scene
 {
 public:
-	SceneSplashScreen(SceneManager& p_sceneManager, AudioManager& p_audioManager, unsigned int p_spriteIndex);
-	// SceneSplashScreen(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
+	SceneSplashScreen(SceneManager& a_sceneManager, AudioManager& a_audioManager, unsigned int a_spriteIndex);
+	// SceneSplashScreen(SceneManager& a_sceneManager, unsigned int a_spriteIndex);
 	
     // Implement the Scene interface
     void onCreate() override;
@@ -25,16 +25,16 @@ public:
     void onFocus() override;
     void onBlur() override; // not used
 	
-	void setNextSceneId(unsigned int p_id);
+	void setNextSceneId(unsigned int a_id);
 
     void processInput() override;
-    void update(float p_timeDelta) override;
-    // void lateUpdate(float p_timeDelta) override;
+    void update(float a_timeDelta) override;
+    // void lateUpdate(float a_timeDelta) override;
 
-    void drawUpper(RenderWindow& p_renderWindow) override;
-    void drawLower(RenderWindow& p_renderWindow) override;
+    void drawUpper(RenderWindow& a_renderWindow) override;
+    void drawLower(RenderWindow& a_renderWindow) override;
 
-    // void draw(RenderWindow& p_renderWindow);
+    // void draw(RenderWindow& a_renderWindow);
 private:
     SceneManager& sceneManager;
     AudioManager& audioManager;

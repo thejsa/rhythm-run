@@ -64,7 +64,7 @@ void AudioManager::play() {
     // LightEvent_Signal(&this->playEvent);
 }
 
-bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_waveBuf) {
+bool AudioManager::fillBuffer(OggOpusFile *const a_opusFile, ndspWaveBuf &a_waveBuf) {
     // eprintf("!\n");
     // #ifdef DEBUG
     // TickCounter timer;
@@ -73,11 +73,11 @@ bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_wave
 
     int totalSamples = 0;
     while (totalSamples < SAMPLES_PER_BUF) {
-        auto const buffer = p_waveBuf.data_pcm16 + totalSamples * CHANNELS_PER_SAMPLE;
+        auto const buffer = a_waveBuf.data_pcm16 + totalSamples * CHANNELS_PER_SAMPLE;
         auto const bufferSize = (SAMPLES_PER_BUF - totalSamples) * CHANNELS_PER_SAMPLE;
 
         // decode samples
-        auto const samples = op_read_stereo(p_opusFile, buffer, bufferSize);
+        auto const samples = op_read_stereo(a_opusFile, buffer, bufferSize);
         // eprintf("decoded %d samples\n", samples);
         
         if(samples <= 0)
@@ -93,7 +93,7 @@ bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_wave
         // TODO: Looping audio
     }
 
-    p_waveBuf.nsamples = totalSamples;
+    a_waveBuf.nsamples = totalSamples;
 
     // #ifdef DEBUG
     // osTickCounterUpdate(&timer);
@@ -104,7 +104,7 @@ bool AudioManager::fillBuffer(OggOpusFile *const p_opusFile, ndspWaveBuf &p_wave
 };
 
 void AudioManager::audioThread() {
-    // auto const opusFile = static_cast<OggOpusFile*>(p_arg);
+    // auto const opusFile = static_cast<OggOpusFile*>(a_arg);
     eprintf("Hello from audio thread!\n");
     if(!this->currentFile) {
         eprintf("no file!\n");
@@ -202,11 +202,11 @@ void AudioManager::initPlayback() {
     }
 }
 
-unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> p_file) {
-	eprintf("id:%u p:%x\n", this->fileCounter, p_file);
+unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> a_file) {
+	eprintf("id:%u p:%x\n", this->fileCounter, a_file);
     /// Add an id-file pair to the files map
-    // auto insertedFile = this->files.insert(std::make_pair(this->fileCounter, p_file));
-    this->files.insert(std::make_pair(this->fileCounter, p_file));
+    // auto insertedFile = this->files.insert(std::make_pair(this->fileCounter, a_file));
+    this->files.insert(std::make_pair(this->fileCounter, a_file));
 
     /// Call onCreate of the file we just inserted
     // insertedFile.first->second->onCreate();
@@ -215,10 +215,10 @@ unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> p_file) {
     return this->fileCounter++;
 };
 
-void AudioManager::removeFile(unsigned int p_fileId) {
-    // Find the id-file pair for p_fileId
-	eprintf("id:%u\n", p_fileId);
-    auto filePair = this->files.find(p_fileId);
+void AudioManager::removeFile(unsigned int a_fileId) {
+    // Find the id-file pair for a_fileId
+	eprintf("id:%u\n", a_fileId);
+    auto filePair = this->files.find(a_fileId);
 
     if(filePair != this->files.end()) {
         // If file being removed is the current file, set it to nullptr
@@ -235,7 +235,7 @@ void AudioManager::removeFile(unsigned int p_fileId) {
     }
 }
 
-int AudioManager::switchFileTo(unsigned int p_fileId) {
+int AudioManager::switchFileTo(unsigned int a_fileId) {
     // Tear down any running playback thread
     if(this->threadId != NULL)
         this->stop();
@@ -244,13 +244,13 @@ int AudioManager::switchFileTo(unsigned int p_fileId) {
     if(this->currentFile)
         op_raw_seek(this->currentFile.get(), 0);
 
-    // Find the id-file pair for p_fileId
-	eprintf("%u\n", p_fileId);
-    auto filePair = this->files.find(p_fileId);
+    // Find the id-file pair for a_fileId
+	eprintf("%u\n", a_fileId);
+    auto filePair = this->files.find(a_fileId);
 
     // Validate that the file was found
     if(filePair == this->files.end()) {
-        eprintf("file id %d not found!!\n", p_fileId);
+        eprintf("file id %d not found!!\n", a_fileId);
         // svcBreak(USERBREAK_PANIC);
         return 1;
     }

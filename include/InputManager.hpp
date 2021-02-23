@@ -6,34 +6,33 @@
 #include <memory>
 #include <unordered_map>
 
-#include "RenderWindow.hpp"
-#include "Scene.hpp"
+#include "Events.hpp"
 
-/// Finite state machine to handle scene management
-class SceneManager
+/// Input manager
+class InputManager
 {
 public:
-    SceneManager();
+    InputManager();
 
     // Pass through to active scene
-    inline void processInput() {
+    void processInput() {
         if(currentScene) currentScene->processInput();
     };
-    inline void update(float a_timeDelta) {
+    void update(float a_timeDelta) {
         if(currentScene) currentScene->update(a_timeDelta);
     };
-    inline void lateUpdate(float a_timeDelta) {
+    void lateUpdate(float a_timeDelta) {
         if(currentScene) currentScene->lateUpdate(a_timeDelta);
     };
 
-    inline void drawUpper(RenderWindow& a_renderWindow) {
+    void drawUpper(RenderWindow& a_renderWindow) {
         if(currentScene) currentScene->drawUpper(a_renderWindow);
     };
-    inline void drawLower(RenderWindow& a_renderWindow) {
+    void drawLower(RenderWindow& a_renderWindow) {
         if(currentScene) currentScene->drawLower(a_renderWindow);
     };
 
-    inline void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) {
+    void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) {
         if(currentScene) currentScene->draw(a_renderWindowUpper, a_renderWindowLower);
     };
 

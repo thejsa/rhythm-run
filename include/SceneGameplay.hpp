@@ -16,9 +16,9 @@
 class SceneGameplay : public Scene
 {
 public:
-	SceneGameplay(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager, const char* p_trackName);
-	// SceneGameplay(SceneManager& p_sceneManager, unsigned int p_spriteIndex);
+	SceneGameplay(SceneManager& a_sceneManager,
+	AudioManager& a_audioManager, const char* a_trackName);
+	// SceneGameplay(SceneManager& a_sceneManager, unsigned int a_spriteIndex);
 	
     // Implement the Scene interface
     void onCreate() override;
@@ -26,16 +26,16 @@ public:
     void onFocus() override;
     void onBlur() override; // not used
 	
-	void setNextSceneId(unsigned int p_id);
+	void setNextSceneId(unsigned int a_id);
 
     void processInput() override;
-    void update(float p_timeDelta) override;
-    // void lateUpdate(float p_timeDelta) override;
+    void update(float a_timeDelta) override;
+    // void lateUpdate(float a_timeDelta) override;
 
-    void drawUpper(RenderWindow& p_renderWindow) override;
-    void drawLower(RenderWindow& p_renderWindow) override;
+    void drawUpper(RenderWindow& a_renderWindow) override;
+    void drawLower(RenderWindow& a_renderWindow) override;
 
-    // void draw(RenderWindow& p_renderWindow);
+    // void draw(RenderWindow& a_renderWindow);
 private:
     SceneManager& sceneManager;
     AudioManager& audioManager;

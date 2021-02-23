@@ -1,8 +1,8 @@
 #include "SceneGameplay.hpp"
 
-SceneGameplay::SceneGameplay(SceneManager& p_sceneManager,
-	AudioManager& p_audioManager, const char* p_trackName)
-:sceneManager(p_sceneManager), audioManager(p_audioManager), trackName(p_trackName),
+SceneGameplay::SceneGameplay(SceneManager& a_sceneManager,
+	AudioManager& a_audioManager, const char* a_trackName)
+:sceneManager(a_sceneManager), audioManager(a_audioManager), trackName(a_trackName),
 	nextSceneId(0), durationEnd(600.0f), durationElapsed(0.0f),
 	isJumping(false), velocityX(0), velocityY(0), accelX(0), accelY(0)
 {};
@@ -98,10 +98,10 @@ void SceneGameplay::onDestroy() {
 	this->audioManager.stop();
 }
 
-void SceneGameplay::setNextSceneId(unsigned int p_id)
+void SceneGameplay::setNextSceneId(unsigned int a_id)
 {
-	eprintf("%u\n", p_id);
-	this->nextSceneId = p_id;
+	eprintf("%u\n", a_id);
+	this->nextSceneId = a_id;
 }
 
 void SceneGameplay::processInput()
@@ -158,10 +158,10 @@ void SceneGameplay::processInput()
 	}
 }
 
-void SceneGameplay::update(float p_timeDelta)
+void SceneGameplay::update(float a_timeDelta)
 {
-	// eprintf("Update, delta: %f\n", p_timeDelta);
-	this->durationElapsed += p_timeDelta;
+	// eprintf("Update, delta: %f\n", a_timeDelta);
+	this->durationElapsed += a_timeDelta;
 	
 	// change scene if splash screen should end
 	// if(this->durationElapsed >= this->durationEnd)
@@ -174,19 +174,19 @@ void SceneGameplay::update(float p_timeDelta)
 
 	// calculate new velocity
 	this->velocityX = std::clamp<float>(
-		this->velocityX + (this->accelX * p_timeDelta),
+		this->velocityX + (this->accelX * a_timeDelta),
 		-10000,
 		10000
 	);
 	this->velocityY = std::clamp<float>(
-		this->velocityY + (this->accelY * p_timeDelta),
+		this->velocityY + (this->accelY * a_timeDelta),
 		-10000,
 		10000
 	);
 
 	// calculate new position
-	float newX = this->splashImageEntity->getX() + (this->velocityX * p_timeDelta);
-	float newY = this->splashImageEntity->getY() - (this->velocityY * p_timeDelta);
+	float newX = this->splashImageEntity->getX() + (this->velocityX * a_timeDelta);
+	float newY = this->splashImageEntity->getY() - (this->velocityY * a_timeDelta);
 
 	// finish jump
 	if(this->isJumping && (
@@ -218,13 +218,13 @@ void SceneGameplay::update(float p_timeDelta)
 	);
 }
 
-void SceneGameplay::drawUpper(RenderWindow& p_renderWindow) {
+void SceneGameplay::drawUpper(RenderWindow& a_renderWindow) {
 	// eprintf("DrawU\n");
-	p_renderWindow.clear(C2D_Color32(255,255,255,255));
-	p_renderWindow.draw(this->splashImageEntity);
+	a_renderWindow.clear(C2D_Color32(255,255,255,255));
+	a_renderWindow.draw(this->splashImageEntity);
 }
-void SceneGameplay::drawLower(RenderWindow& p_renderWindow) {
+void SceneGameplay::drawLower(RenderWindow& a_renderWindow) {
 	// ((void)0);
-	p_renderWindow.clear(C2D_Color32(255,255,255,255));
+	a_renderWindow.clear(C2D_Color32(255,255,255,255));
 	// eprintf("DrawL\n");
 } // no-op
