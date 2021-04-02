@@ -3,7 +3,7 @@
 SceneSplashScreen::SceneSplashScreen(SceneManager& a_sceneManager,
 	AudioManager& a_audioManager, unsigned int a_spriteIndex)
 :sceneManager(a_sceneManager), audioManager(a_audioManager), splashImageIndex(a_spriteIndex),
-	nextSceneId(0), durationEnd(1.0f), durationElapsed(0.0f)
+	nextSceneId(0), durationEnd(3.0f), durationElapsed(0.0f)
 {};
 
 void SceneSplashScreen::onCreate()
@@ -44,7 +44,7 @@ void SceneSplashScreen::onCreate()
 		opusFile = nullptr;
 	} else {
 		audioId = audioManager.addFile(opusFile);
-		eprintf("opus file: %x -> id %d\n", opusFile, audioId);
+		// eprintf("opus file: %x -> id %d\n", opusFile, audioId);
 		// audioId = 1337;
 	}
 

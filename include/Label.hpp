@@ -20,7 +20,7 @@
 class Label : public Drawable
 {
 public:
-    Label(const char *a_text, float a_x, float a_y, u32 a_flags, float a_scaleX, float a_scaleY, size_t a_bufSize);
+    Label(const char *a_text, float a_x, float a_y, u32 a_flags, float a_scaleX, float a_scaleY, u32 a_color, size_t a_bufSize);
     Label() {}; // default empty constructor
 
     // Destructor -- clean up text buf
@@ -62,10 +62,12 @@ public:
         scaleY *= a_scaleY;
     };
 
-    bool draw() {
-        C2D_DrawText(&text, textFlags, posX, posY, 0.0f, scaleX, scaleY);
-        return true;
-    };
+    /// Set label text
+    void setText(const char *a_text, size_t a_bufSize);
+    /// Set label color
+    void setColor(u32 a_color) { color = a_color; };
+
+    bool draw();
 private:
     C2D_Text text;
     C2D_TextBuf textBuf;
@@ -73,4 +75,6 @@ private:
 
     float posX, posY;
     float scaleX, scaleY;
+    
+    u32 color;
 };

@@ -23,17 +23,29 @@ public:
         : topLeft(a_topLeft), lowerRight(a_lowerRight) { };
 
     /// Returns true if this Rectangle intersects the given Rectangle.
-    inline bool doesIntersect(Rectangle a_rect) {
-        // Two rectangles DO NOT overlap if and only if:
-        // * One rectangle is above the top edge of the other; AND/OR
-        // * One rectangle is further left than the left edge of the other.
-        // Therefore, this checks that neither of the above conditions are met.
+    // inline bool doesIntersect(Rectangle a_rect) {
+    //     // Two rectangles DO NOT overlap if and only if:
+    //     // * One rectangle is above the top edge of the other; AND/OR
+    //     // * One rectangle is further left than the left edge of the other.
+    //     // Therefore, this checks that neither of the above conditions are met.
 
-        return !(
-            (topLeft.x >= a_rect.lowerRight.x) ||
-            (a_rect.topLeft.x >= lowerRight.x) ||
-            (topLeft.y <= a_rect.lowerRight.y) ||
-            (a_rect.topLeft.y <= lowerRight.y)
+    //     return !(
+    //         (topLeft.x >= a_rect.lowerRight.x) ||
+    //         (a_rect.topLeft.x >= lowerRight.x) ||
+    //         (topLeft.y <= a_rect.lowerRight.y) ||
+    //         (a_rect.topLeft.y <= lowerRight.y)
+    //     );
+    // }
+    inline bool doesIntersect(Rectangle a_rect) {
+        return (
+            (
+                a_rect.topLeft.x >= topLeft.x &&
+                a_rect.lowerRight.x <= lowerRight.x
+            ) &&
+            (
+                a_rect.topLeft.y >= topLeft.y &&
+                a_rect.lowerRight.y <= lowerRight.y
+            )
         );
     }
 

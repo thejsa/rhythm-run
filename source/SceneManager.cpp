@@ -2,10 +2,11 @@
 
 /// Constructor
 SceneManager::SceneManager()
-:scenes(0), currentScene(nullptr), sceneCounter(0) {}
+:scenes(0), currentScene(nullptr), sceneCounter(0),
+shutdownFlag(false), quitFlag(false) {}
 
 unsigned int SceneManager::addScene(std::shared_ptr<Scene> a_scene) {
-	eprintf("id:%u p:%x\n", sceneCounter, a_scene);
+	// eprintf("id:%u p:%x\n", sceneCounter, a_scene);
     /// Add an id-scene pair to the scenes map
     auto insertedScene = scenes.insert(std::make_pair(sceneCounter, a_scene));
 

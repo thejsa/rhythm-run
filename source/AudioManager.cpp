@@ -55,7 +55,7 @@ void AudioManager::play() {
 	priority = std::clamp<s32> (priority - 1, 0x18, 0x3F);
 
 	threadId = threadCreate (proxyAudioThread, this, THREAD_STACK_SIZE, priority, THREAD_AFFINITY, false);
-    eprintf("created thread with id %x\n", threadId);
+    // eprintf("created thread with id %x\n", (unsigned int) threadId);
 
     // eprintf("pl\n");
     // // shouldPause = false;
@@ -189,7 +189,7 @@ void AudioManager::initPlayback() {
 
     // Get a pointer to the audio buffer that we can advance
     auto buffer = audioBuffer;
-    eprintf("allocated buffer %x\n", buffer);
+    // eprintf("allocated buffer %x\n", buffer);
 
     // Initialise wavebufs
     std::memset(&waveBufs, 0, sizeof(waveBufs));
@@ -203,7 +203,7 @@ void AudioManager::initPlayback() {
 }
 
 unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> a_file) {
-	eprintf("id:%u p:%x\n", fileCounter, a_file);
+	// eprintf("id:%u p:%x\n", fileCounter, a_file);
     /// Add an id-file pair to the files map
     // auto insertedFile = files.insert(std::make_pair(fileCounter, a_file));
     files.insert(std::make_pair(fileCounter, a_file));

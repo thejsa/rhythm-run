@@ -17,14 +17,14 @@ typedef enum touchEventKind_t {
     TOUCH_MOVE  = 2,
 } touchEventKind_t;
 
-/// Touch event listener
-typedef struct touchEventListener_t {
-    callback_t<touchEvent_t> cb;
-    touchEventKind_t kind;
-} touchEventListener_t;
-
 /// Touch event
 typedef struct touchEvent_t {
     touchEventKind_t kind;
     Point pos;
 } touchEvent_t;
+
+/// Touch event listener
+typedef struct touchEventListener_t {
+    callback_t<touchEvent_t> cb;
+    touchEventKind_t kind;
+} touchEventListener_t;

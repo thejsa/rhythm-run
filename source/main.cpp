@@ -9,20 +9,24 @@
 #include "Game.hpp"
 
 int main(int argc_, char *argv_[]) {
-	#ifdef DEBUG
+	// #ifdef DEBUG
 	// printf("gdbHioDevInit %d\n", gdbHioDevInit());
-	// gdbHioDevInit();
-	// gdbHioDevRedirectStdStreams(true, true, true);
-	// eprintf("Hello from 3DS!\n");
-	#endif
+	gdbHioDevInit();
+	gdbHioDevRedirectStdStreams(true, true, true);
+	eprintf("Hello from 3DS!\n");
+	// #endif
 	
 	// Init libs
 	gfxInitDefault();
 	romfsInit();
 
 	// Init console on touchscreen
-	consoleInit(GFX_BOTTOM, NULL);
-	eprintf("inited console\n");
+	// consoleInit(GFX_BOTTOM, NULL);
+	// consoleInit(GFX_TOP, NULL);
+	// eprintf("inited console\n");
+
+	// enable New3ds speedup
+	osSetSpeedupEnable(true);
 
 	eprintf("Init C2D\n");
 
@@ -45,9 +49,9 @@ int main(int argc_, char *argv_[]) {
 	C3D_Fini();
 	gfxExit();
 
-	#ifdef DEBUG
+	// #ifdef DEBUG
 	gdbHioDevExit();
-	#endif
+	// #endif
 
 	return 0;
 }

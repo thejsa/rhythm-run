@@ -51,11 +51,17 @@ private:
 
 	C2D_SpriteSheet spriteSheet;
 
-	std::shared_ptr<Entity> splashImageEntity;
+	std::shared_ptr<Entity> playerEntity;
+
+	std::shared_ptr<Entity> platform1Entity;
+	std::shared_ptr<Entity> platform2Entity;
+	std::shared_ptr<Entity> platform3Entity;
+	std::shared_ptr<Entity> platform4Entity;
+
     std::shared_ptr<OggOpusFile> opusFile;
     unsigned int audioId;
-
     bool isJumping;
+    bool shouldRedraw;
     float velocityX, velocityY;
     float accelX, accelY;
 };

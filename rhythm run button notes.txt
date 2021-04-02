@@ -1,0 +1,7 @@
+fontHeight = 3/4 * buttonHeight px
+           = 3/4 * buttonHeight * 1/30
+           = 1/40 * buttonHeight
+
+baseline = 25/30 * fontHeight
+	 = 25/30 * 3/4 * buttonHeight
+         = 25/40 * buttonHeight

@@ -41,6 +41,9 @@ GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 
+APP_TITLE	:=	Rhythm Run
+APP_AUTHOR	:=	Lauren Kelly
+
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------

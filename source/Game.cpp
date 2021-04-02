@@ -9,6 +9,7 @@
 #include "Label.hpp"
 #include "Entity.hpp"
 
+#include "SceneMenu.hpp"
 #include "SceneSplashScreen.hpp"
 #include "SceneGameplay.hpp"
 
@@ -18,7 +19,7 @@
 #include <citro2d.h>
 
 Game::Game()
-:upperScreen(GFX_TOP, GFX_LEFT), lowerScreen(GFX_BOTTOM, GFX_LEFT), quitFlag(false)
+:upperScreen(GFX_TOP, GFX_LEFT), lowerScreen(GFX_BOTTOM, GFX_LEFT)
 {
 	// Init clock
 	// PLATFORM SPECIFIC
@@ -29,46 +30,52 @@ Game::Game()
 	// sceneManager = SceneManager();
 	// audioManager = AudioManager();
 	
-	// Init test scene
+	// Init scenes
+
 	std::shared_ptr<SceneSplashScreen> splashScene1 = std::make_shared<SceneSplashScreen>(
 		sceneManager,
 		audioManager,
 		0 // sprite index
 	);
+	std::shared_ptr<SceneSplashScreen> splashScene2 = std::make_shared<SceneSplashScreen>(
+		sceneManager,
+		audioManager,
+		2 // sprite index
+	);
 	std::shared_ptr<SceneGameplay> gameplayScene = std::make_shared<SceneGameplay>(
 		sceneManager,
 		audioManager,
-		"newspapers_for_magicians" // track
+		// "newspapers_for_magicians" // track
+		"moonlight_sonata" // track
 	);
-	// std::shared_ptr<SceneSplashScreen> splashScene2 = std::make_shared<SceneSplashScreen>(
-	// 	sceneManager,
-	// 	audioManager,
-	// 	1 // sprite index
-	// );
-	// std::shared_ptr<SceneSplashScreen> splashScene3 = std::make_shared<SceneSplashScreen>(
-	// 	sceneManager,
-	// 	audioManager,
-	// 	2 // sprite index
-	// );
 	
-	eprintf("adding scenes to manager %x\n", sceneManager);
+	eprintf("adding scenes to manager\n");
 
 	unsigned int splashScene1Id = sceneManager.addScene(splashScene1);
+	unsigned int splashScene2Id = sceneManager.addScene(splashScene2);
 	unsigned int gameplaySceneId = sceneManager.addScene(gameplayScene);
-	// unsigned int splashScene2Id = sceneManager.addScene(splashScene2);
-	// unsigned int splashScene3Id = sceneManager.addScene(splashScene3);
-	
+
+	std::shared_ptr<SceneMenu> theMenu = std::make_shared<SceneMenu>(
+		sceneManager,
+		audioManager,
+		gameplaySceneId,
+		splashScene1Id
+	);
+
+	unsigned int menuSceneId = sceneManager.addScene(theMenu);
+
 	// eprintf("setting nextSceneIds %u->%u %u->%u %u->%u\n", splashScene1Id, splashScene2Id, splashScene2Id, splashScene3Id, splashScene3Id, splashScene1Id);
 
 	// just cycle the splash screens until we implement more fun stuff
-	splashScene1->setNextSceneId(gameplaySceneId);
-	gameplayScene->setNextSceneId(splashScene1Id);
+	splashScene1->setNextSceneId(splashScene2Id);
+	splashScene2->setNextSceneId(menuSceneId);
+	gameplayScene->setNextSceneId(menuSceneId);
 	// splashScene1->setNextSceneId(splashScene2Id);
 	// splashScene2->setNextSceneId(splashScene3Id);
 	// splashScene3->setNextSceneId(splashScene1Id);
 
-	eprintf("Begin by switching focus to scene %u\n", splashScene1Id);
-	sceneManager.switchFocusTo(splashScene1Id);
+	eprintf("Begin by switching focus to menu scene, id: %u\n", menuSceneId);
+	sceneManager.switchFocusTo(menuSceneId);
 }
 
 void Game::stepTimer() {
@@ -85,7 +92,8 @@ void Game::processInput() {
 	
 	if(hidKeysDown() & KEY_START) {
 		eprintf("keyStart -- quit flag!\n");
-		quitFlag = true; // return to hbmenu
+		// signal sceneManager to shutdown
+		sceneManager.shutdown();
 	}
 	
 	sceneManager.processInput();
@@ -102,7 +110,9 @@ void Game::update() {
 	// eprintf("update end\n");
 };
 
-void Game::lateUpdate() { ((void)0); };
+void Game::lateUpdate() {
+	sceneManager.lateUpdate(timeDelta);
+};
 
 void Game::drawUpper() {
 	// eprintf("BeginDrawU\n");
@@ -119,3 +129,13 @@ void Game::drawLower() {
 	lowerScreen.endDraw();
 	// eprintf("End\n");
 };
+
+void Game::draw() {
+	// gfxFlushBuffers();
+	// gfxSwapBuffers();
+	// gspWaitForVBlank();
+
+	// gfxSwapBuffers();
+	drawUpper();
+	drawLower();
+}

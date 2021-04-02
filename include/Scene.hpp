@@ -27,6 +27,9 @@ public:
     /// Called whenever the scene loses focus ('blur')
     virtual void onBlur() {};
 
+    /// Whether it is safe to terminate the scene now
+    virtual bool canQuit() { return true; };
+
     // To be overridden as necessary
     virtual void processInput() {};
     virtual void update(float a_timeDelta) {};

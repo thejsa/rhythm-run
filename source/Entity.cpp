@@ -38,19 +38,19 @@ void Entity::setSprite(size_t a_index, C2D_SpriteSheet a_spriteSheet = NULL)
 }
 
 Rectangle Entity::getRect() {
-    float halfWidth = getWidth() / 2;
-    float halfHeight = getHeight() / 2;
+    float xOffset = getWidth() * getCenterX();
+    float yOffset = getHeight() * getCenterY();
 
     return Rectangle(
         // top left corner
         {
-            sprite.params.pos.x - halfWidth,
-            sprite.params.pos.y - halfHeight
+            sprite.params.pos.x - xOffset,
+            sprite.params.pos.y - yOffset
         },
         // lower right corner
         {
-            sprite.params.pos.x + halfWidth,
-            sprite.params.pos.y + halfHeight
+            sprite.params.pos.x - xOffset + getWidth(),
+            sprite.params.pos.y - yOffset + getHeight()
         }
     );
 }

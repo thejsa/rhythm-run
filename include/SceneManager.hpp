@@ -24,17 +24,18 @@ public:
     };
     inline void lateUpdate(float a_timeDelta) {
         if(currentScene) currentScene->lateUpdate(a_timeDelta);
+        if(shouldShutdown() && currentScene->canQuit()) quit();
     };
 
     inline void drawUpper(RenderWindow& a_renderWindow) {
-        if(currentScene) currentScene->drawUpper(a_renderWindow);
+        if(currentScene && !shouldShutdown()) currentScene->drawUpper(a_renderWindow);
     };
     inline void drawLower(RenderWindow& a_renderWindow) {
-        if(currentScene) currentScene->drawLower(a_renderWindow);
+        if(currentScene && !shouldShutdown()) currentScene->drawLower(a_renderWindow);
     };
 
     inline void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) {
-        if(currentScene) currentScene->draw(a_renderWindowUpper, a_renderWindowLower);
+        if(currentScene && !shouldShutdown()) currentScene->draw(a_renderWindowUpper, a_renderWindowLower);
     };
 
     // Add scene to the state machine, returning its ID
@@ -44,6 +45,18 @@ public:
     // Remove scene from the state machine
     void removeScene(unsigned int a_sceneId);
 
+    /// Set shutdown flag
+    void shutdown() { shutdownFlag = true; }
+
+    /// is shutdown flag set?
+    bool shouldShutdown() { return shutdownFlag; }
+
+    /// Set quit flag
+    void quit() { shutdownFlag = true; quitFlag = true; }
+
+    /// is quit flag set?
+    bool shouldQuit() { return quitFlag; }
+
 private:
     /// Stores all scenes
     std::unordered_map<unsigned int, std::shared_ptr<Scene>> scenes;
@@ -51,4 +64,8 @@ private:
     std::shared_ptr<Scene> currentScene;
     /// Stores the current scene ID, incremented whenever a scene is added
     unsigned int sceneCounter;
+    /// should scenes wind down?
+    bool shutdownFlag;
+    /// are we ready to quit?
+    bool quitFlag;
 };

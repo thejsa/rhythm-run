@@ -33,7 +33,7 @@ public:
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_SceneBegin(renderTarget);
 
-        clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
+        // clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
     };
 
     /// Draw something
@@ -45,6 +45,19 @@ public:
     void endDraw() {
         // eprintf("EndDraw\n");
         C3D_FrameEnd(0);
+
+        // sync to 60fps
+        float gpuTime = C3D_GetDrawingTime();
+        float cpuTime = C3D_GetProcessingTime();
+        // gfxFlushBuffers();
+        if (gpuTime > 1000.0f / 30.f || cpuTime > 1000.0f / 30.0f) {
+            printf("!! TOO SLOW !!\n");
+        } else {
+            gspWaitForVBlank();
+        }
+        printf("\x1b[29;1HGPU: %.02f ms; CPU: %.02f ms  ", gpuTime, cpuTime);
+        // eprintf("")
+        // gfxSwapBuffers();
     };
 
     /// Clear the window with a particular colour

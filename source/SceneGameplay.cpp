@@ -3,8 +3,9 @@
 SceneGameplay::SceneGameplay(SceneManager& a_sceneManager,
 	AudioManager& a_audioManager, const char* a_trackName)
 :sceneManager(a_sceneManager), audioManager(a_audioManager), trackName(a_trackName),
-	nextSceneId(0), durationEnd(600.0f), durationElapsed(0.0f),
-	isJumping(false), velocityX(0), velocityY(0), accelX(0), accelY(0)
+	nextSceneId(0), durationEnd(1/30.0f), durationElapsed(0.0f),
+	isJumping(false), shouldRedraw(true), 
+	velocityX(0), velocityY(0), accelX(0), accelY(0)
 {};
 
 void SceneGameplay::onCreate()
@@ -26,18 +27,35 @@ void SceneGameplay::onCreate()
 	// } else {
 	// 	scale = 1.0f;
 	// }
-	splashImageEntity = std::make_shared<Entity>(200, 120, // centre of screen
+	playerEntity = std::make_shared<Entity>(200, 120, // centre of screen
 		spriteSheet, 2, // which sheet & image to load
-		0.5f, 0.5f, // sprite's origin
+		// 0.5f, 0.5f, // sprite's origin
+		0.0f, 1.0f, // sprite's origin -- bottom left
 		1.5f, 1.5f, // scale
 		0.0f //rotation
 	);
 	
 	// reposition to bottom left of screen
-	splashImageEntity->setPosition(
-		0 + splashImageEntity->getWidth() / 2,
-		240 - splashImageEntity->getHeight() / 2
+	playerEntity->setPosition(0, 240);
+	
+	// create a platform entity
+	platform1Entity = std::make_shared<Entity>(200, 120, // centre of screen
+		spriteSheet, 3, // which sheet & image to load
+		// 0.5f, 0.5f, // sprite's origin
+		0.0f, 1.0f, // sprite's origin -- bottom left
+		0.25f, 0.25f, // scale
+		0.0f //rotation
 	);
+	// copy the platform
+	platform2Entity = std::make_shared<Entity>(*platform1Entity);
+	platform3Entity = std::make_shared<Entity>(*platform1Entity);
+	platform4Entity = std::make_shared<Entity>(*platform1Entity);
+	
+	// position the platforms
+	platform1Entity->setPosition(72,	216);
+	platform2Entity->setPosition(120,	216);
+	platform3Entity->setPosition(168,	216);
+	platform4Entity->setPosition(216,	216);
 
 	// Play audio
 	// soloud.init();
@@ -56,7 +74,7 @@ void SceneGameplay::onCreate()
 		opusFile = nullptr;
 	} else {
 		audioId = audioManager.addFile(opusFile);
-		eprintf("opus file: %x -> id %d\n", opusFile, audioId);
+		// eprintf("opus file: %x -> id %d\n", opusFile, audioId);
 		// audioId = 1337;
 	}
 
@@ -67,7 +85,7 @@ void SceneGameplay::onFocus()
 {
 	// eprintf("Focus\n");
 	// Reset duration timer
-	durationElapsed = 0.0f;
+	// durationElapsed = 0.0f;
 
 	if(opusFile) {
 		eprintf("switch to audio %d\n", audioId);
@@ -106,6 +124,8 @@ void SceneGameplay::setNextSceneId(unsigned int a_id)
 
 void SceneGameplay::processInput()
 {
+	static const float fGravity = -9.81f;
+
 	// Quit if APT says we should, or if user presses the START key
 	u32 kDown = hidKeysDown();
 	u32 kHeld = hidKeysHeld();
@@ -113,8 +133,8 @@ void SceneGameplay::processInput()
 		eprintf("keyA\n");
 		// if(!isJumping) {
 			isJumping = true;
-			velocityY = 294.3f;
-			accelY = -98.1f * 2.5f;
+			velocityY = -40.0f * fGravity;
+			accelY = 30.0f * fGravity * 2.5f;
 		// }
 		// audioManager.pause();
 	};
@@ -150,27 +170,29 @@ void SceneGameplay::processInput()
 
 	if(kHeld & KEY_RIGHT) {
 		// eprintf("keyRight\n");
-		splashImageEntity->move(2, 0);
+		playerEntity->move(2, 0);
 	}
 	if(kHeld & KEY_LEFT) {
 		// eprintf("keyLeft\n");
-		splashImageEntity->move(-2, 0);
+		playerEntity->move(-2, 0);
 	}
 }
 
 void SceneGameplay::update(float a_timeDelta)
 {
+	// if we should shutdown, cleanup
+	if(sceneManager.shouldShutdown()) {
+		audioManager.stop();
+		return;
+	}
+
 	// eprintf("Update, delta: %f\n", a_timeDelta);
 	durationElapsed += a_timeDelta;
 	
 	// change scene if splash screen should end
 	// if(durationElapsed >= durationEnd)
 	// 	sceneManager.switchFocusTo(nextSceneId);
-	if(durationElapsed >= durationEnd) {
-		eprintf("durationElapsed: + %.2f s\n", durationElapsed);
-		durationElapsed = 0;
-		sceneManager.switchFocusTo(nextSceneId);
-	}
+
 
 	// calculate new velocity
 	velocityX = std::clamp<float>(
@@ -185,19 +207,19 @@ void SceneGameplay::update(float a_timeDelta)
 	);
 
 	// calculate new position
-	float newX = splashImageEntity->getX() + (velocityX * a_timeDelta);
-	float newY = splashImageEntity->getY() - (velocityY * a_timeDelta);
+	float newX = playerEntity->getX() + (velocityX * a_timeDelta);
+	float newY = playerEntity->getY() - (velocityY * a_timeDelta);
 
 	// finish jump
 	if(isJumping && (
-		newY <   0 + splashImageEntity->getHeight() / 2
+		newY <   0 + playerEntity->getHeight()
 	)) {
 		eprintf("jump peak, current velY: %.2f; newPos would be: %.2f, %.2f\n", velocityY, newX, newY);
 		velocityY = 0.0f;
 	}
 	if(isJumping && (
-		newY > 240 - splashImageEntity->getHeight() / 2
-		// || newY <   0 + splashImageEntity->getHeight() / 2
+		newY > 240
+		// || newY <   0 + playerEntity->getHeight()
 	)) {
 		eprintf("end jump, would be at: %.2f, %.2f\n", newX, newY);
 		isJumping = false;
@@ -206,22 +228,83 @@ void SceneGameplay::update(float a_timeDelta)
 	}
 
 	// move, but keep in scene
-	splashImageEntity->setPosition(
+	playerEntity->setPosition(
 		std::clamp<float>(newX,
-			0   + splashImageEntity->getWidth() / 2,
-			400 - splashImageEntity->getWidth() / 2
+			0,
+			400 - playerEntity->getWidth()
 		),
 		std::clamp<float>(newY,
-			0   + splashImageEntity->getHeight() / 2,
-			240 - splashImageEntity->getHeight() / 2
+			0   + playerEntity->getHeight(),
+			240
 		)
 	);
+
+	// check collision with platforms
+	Rectangle playerBbox = playerEntity->getRect();
+	std::shared_ptr<Entity> platforms[] = {
+		platform1Entity,
+		platform2Entity,
+		platform3Entity,
+		platform4Entity,
+	};
+
+	for(auto platform : platforms) {
+		Rectangle bbox = platform->getRect();
+
+		/*printf("player: (%.02f, %.02f), (%.02f, %.02f)\n  platf1: (%.02f, %.02f), (%.02f, %.02f)\n",
+			playerBbox.topLeft.x,
+			playerBbox.topLeft.y,
+			playerBbox.lowerRight.x,
+			playerBbox.lowerRight.y,
+			bbox.topLeft.x,
+			bbox.topLeft.y,
+			bbox.lowerRight.x,
+			bbox.lowerRight.y
+		);*/
+		// playerEntity->getY()
+		if(
+			(
+				playerEntity->getX() + playerEntity->getWidth() >= platform->getX() && 
+				playerEntity->getX() <= platform->getX() + platform->getWidth()
+			) &&
+			(
+				playerEntity->getY() > platform->getY() - platform->getHeight()
+			)
+		) {
+		// if(playerBbox.lowerRight.y > bbox.topLeft.y) {
+			printf("collide!\n");
+
+			playerEntity->setPosition(
+				playerEntity->getX(),
+				platform->getY() - platform->getHeight()
+			);
+			isJumping = false;
+			velocityY = 0.0f;
+			accelY = 0.0f;
+		}
+	}
+
+	// if(durationElapsed < (1/30.0f)) {
+		// frame limiter
+		// return;
+		// shouldRedraw = false;
+		// eprintf("durationElapsed: + %.2f s\n", durationElapsed);
+		// durationElapsed = 0;
+		// sceneManager.switchFocusTo(nextSceneId);
+	// } else {
+		// shouldRedraw = true;
+		// durationElapsed = 0;
+	// }
 }
 
 void SceneGameplay::drawUpper(RenderWindow& a_renderWindow) {
 	// eprintf("DrawU\n");
 	a_renderWindow.clear(C2D_Color32(255,255,255,255));
-	a_renderWindow.draw(splashImageEntity);
+	a_renderWindow.draw(playerEntity);
+	a_renderWindow.draw(platform1Entity);
+	a_renderWindow.draw(platform2Entity);
+	a_renderWindow.draw(platform3Entity);
+	a_renderWindow.draw(platform4Entity);
 }
 void SceneGameplay::drawLower(RenderWindow& a_renderWindow) {
 	// ((void)0);

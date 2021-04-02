@@ -81,7 +81,7 @@ public:
     
     /// @brief Draw the sprite
     inline bool draw() { return C2D_DrawSprite(&sprite); };
-private:
+protected:
     /// @brief Current C2D sprite sheet
     C2D_SpriteSheet spriteSheet;
     /// @brief Index of sprite graphic currently being used from sheet

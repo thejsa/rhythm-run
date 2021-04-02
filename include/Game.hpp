@@ -35,14 +35,17 @@ public:
     /// Draw frame for lower screen
     void drawLower();
     /// Render a full dual-screen frame
-    void draw() {
-        drawUpper();
-        // drawLower();
-    };
+    void draw();
+
+    /// should we quit the program?
+    /// ask scene manager.
+    inline bool shouldQuit() {
+        return sceneManager.shouldQuit();
+    }
     
-    bool isRunning() {  // Should the game continue running?
+    inline bool isRunning() {  // Should the game continue running?
         // Quit if APT says we should, or if we've set the quit flag
-        return aptMainLoop() && !quitFlag;
+        return aptMainLoop() && !shouldQuit();
     };
 private:
     RenderWindow upperScreen;
@@ -53,6 +56,4 @@ private:
     
     u64 lastTime;
     float timeDelta;
-
-    bool quitFlag;
 };
