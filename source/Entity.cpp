@@ -38,8 +38,8 @@ void Entity::setSprite(size_t a_index, C2D_SpriteSheet a_spriteSheet = NULL)
 }
 
 Rectangle Entity::getRect() {
-    float xOffset = getWidth() * getCenterX();
-    float yOffset = getHeight() * getCenterY();
+    float xOffset = getCenterXRaw();
+    float yOffset = getCenterYRaw();
 
     return Rectangle(
         // top left corner

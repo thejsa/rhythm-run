@@ -14,5 +14,8 @@ class Player : public Entity
 public:
     void jump();
 private:
-    float velocity_x;
+    float fSpeed;
+    float fWeight;
+    float fVelocityX;
+    float fVelocityY;
 };

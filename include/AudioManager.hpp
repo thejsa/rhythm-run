@@ -41,17 +41,6 @@ public:
     // Remove file from the state machine
     void removeFile(unsigned int a_fileId);
 
-    void cleanup() {
-        shouldStop = true;
-        threadJoin (threadId, UINT64_MAX);
-        threadFree (threadId);
-
-        ndspChnWaveBufClear(0);
-        linearFree(audioBuffer);
-
-        ndspExit();
-    }
-
     /// Stop playback and free the playback thread.
     void stop();
     /// Is playback 'paused' (whether stopped or not playing)?

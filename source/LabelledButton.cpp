@@ -49,7 +49,7 @@ LabelledButton::LabelledButton(float a_x, float a_y, C2D_SpriteSheet a_spriteShe
     textLabel = std::make_shared<Label>(a_text,
         newPosition.x, newPosition.y,
         C2D_AtBaseline | C2D_AlignCenter,
-        fontScale * a_scaleX, fontScale * a_scaleY,
+        fontScale * a_scaleY, fontScale * a_scaleY, // intentional both Y
         a_textColor, strlen(a_text) + 1
     );
 }

@@ -52,7 +52,7 @@
             "command": "3dslink",
             "args": [
                 "-a",
-                "172.16.1.209",
+                "172.16.1.77",
                 // "${input:consoleIPAddress}",
                 "${workspaceFolder}/rhythm-run.3dsx"
             ]

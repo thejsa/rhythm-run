@@ -31,7 +31,7 @@ void SceneGameplay::onCreate()
 		spriteSheet, 2, // which sheet & image to load
 		// 0.5f, 0.5f, // sprite's origin
 		0.0f, 1.0f, // sprite's origin -- bottom left
-		1.5f, 1.5f, // scale
+		1.0f, 1.0f, // scale
 		0.0f //rotation
 	);
 	
@@ -168,13 +168,17 @@ void SceneGameplay::processInput()
 		}
 	};
 
+	if(kDown & KEY_SELECT) {
+		sceneManager.switchFocusTo(nextSceneId);
+	}
+
 	if(kHeld & KEY_RIGHT) {
 		// eprintf("keyRight\n");
-		playerEntity->move(2, 0);
+		playerEntity->move(4, 0);
 	}
 	if(kHeld & KEY_LEFT) {
 		// eprintf("keyLeft\n");
-		playerEntity->move(-2, 0);
+		playerEntity->move(-4, 0);
 	}
 }
 

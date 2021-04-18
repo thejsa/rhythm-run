@@ -21,6 +21,12 @@ AudioManager::~AudioManager() {
     eprintf("cleanup\n");
     stop();
     files.clear();
+
+    ndspChnWaveBufClear(0);
+    linearFree(audioBuffer);
+
+    ndspExit();
+
     eprintf("all done!\n");
 }
 

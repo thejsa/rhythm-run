@@ -26,8 +26,14 @@ public:
     // Getter functions
     inline float getX() { return sprite.params.pos.x; };
     inline float getY() { return sprite.params.pos.y; };
-    inline float getCenterX() { return sprite.params.center.x; };
-    inline float getCenterY() { return sprite.params.center.y; };
+    
+    /// @brief Return the (relative) center point of the sprite (0.0 thru 1.0)
+    inline float getCenterX() { return getCenterXRaw() / getWidth(); };
+    inline float getCenterY() { return getCenterYRaw() / getHeight(); };
+    /// @brief Return the (relative) center point of the sprite (in pixels)
+    inline float getCenterXRaw() { return sprite.params.center.x; };
+    inline float getCenterYRaw() { return sprite.params.center.y; };
+
     inline float getScaleX() { return sprite.params.pos.w / sprite.image.subtex->width; };
     inline float getScaleY() { return sprite.params.pos.h / sprite.image.subtex->height; };
     inline float getRotation() { return sprite.params.angle; };

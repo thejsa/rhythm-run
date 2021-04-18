@@ -77,8 +77,8 @@ void SceneMenu::onCreate()
 	button3 = std::make_shared<LabelledButton>(40, 160, // x,y
 		spriteSheet, 1, 2, // which sheet & image to load
 		0.0f, 0.0f, // sprite's origin
-		"Exit",
-		1.0f, 1.0f, // scale
+		"Quit Game",
+		0.5f, 0.75f, // scale
 		0.0f, //rotation
 		C2D_Color32(0xff, 0xff, 0xff, 0xff)
 	);
@@ -275,7 +275,7 @@ void SceneMenu::drawUpper(RenderWindow& a_renderWindow) {
 }
 void SceneMenu::drawLower(RenderWindow& a_renderWindow) {
 	// ((void)0);
-	a_renderWindow.clear(C2D_Color32(0xAA, 0xFF, 0xFF, 0xFF));
+	a_renderWindow.clear(C2D_Color32(0xDD, 0xFF, 0xFF, 0xFF));
 
 	a_renderWindow.draw(button1);
 	// a_renderWindow.draw(button1Label);

@@ -92,7 +92,7 @@ protected:
 
         return Point{
             topLeft.x + (getWidth() / 2),
-            topLeft.y + fontBaseline
+            topLeft.y + fontBaseline + (getHeight() / 8)
         };
     }
 };

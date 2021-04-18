@@ -46,16 +46,10 @@ public:
         // eprintf("EndDraw\n");
         C3D_FrameEnd(0);
 
-        // sync to 60fps
-        float gpuTime = C3D_GetDrawingTime();
-        float cpuTime = C3D_GetProcessingTime();
-        // gfxFlushBuffers();
-        if (gpuTime > 1000.0f / 30.f || cpuTime > 1000.0f / 30.0f) {
-            printf("!! TOO SLOW !!\n");
-        } else {
-            gspWaitForVBlank();
-        }
-        printf("\x1b[29;1HGPU: %.02f ms; CPU: %.02f ms  ", gpuTime, cpuTime);
+        // float gpuTime = C3D_GetDrawingTime();
+        // float cpuTime = C3D_GetProcessingTime();
+
+        // printf("\x1b[29;1HGPU: %.02f ms; CPU: %.02f ms  ", gpuTime, cpuTime);
         // eprintf("")
         // gfxSwapBuffers();
     };
