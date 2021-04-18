@@ -7,6 +7,8 @@
 #include <unordered_map>
 
 #include "Events.hpp"
+#include "RenderWindow.hpp"
+#include "Scene.hpp"
 
 /// Input manager
 class InputManager {
@@ -28,17 +30,6 @@ public:
     {
         if (currentScene)
             currentScene->lateUpdate(a_timeDelta);
-    };
-
-    void drawUpper(RenderWindow& a_renderWindow)
-    {
-        if (currentScene)
-            currentScene->drawUpper(a_renderWindow);
-    };
-    void drawLower(RenderWindow& a_renderWindow)
-    {
-        if (currentScene)
-            currentScene->drawLower(a_renderWindow);
     };
 
     void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)

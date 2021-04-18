@@ -118,31 +118,11 @@ void Game::lateUpdate()
     sceneManager.lateUpdate(timeDelta);
 };
 
-void Game::drawUpper()
-{
-    // eprintf("BeginDrawU\n");
-    upperScreen.beginDraw();
-    sceneManager.drawUpper(upperScreen);
-    upperScreen.endDraw();
-    // eprintf("End\n");
-};
-
-void Game::drawLower()
-{
-    // eprintf("BeginDrawL\n");
-    lowerScreen.beginDraw();
-    sceneManager.drawLower(lowerScreen);
-    lowerScreen.endDraw();
-    // eprintf("End\n");
-};
-
 void Game::draw()
 {
-    // gfxFlushBuffers();
-    // gfxSwapBuffers();
-    // gspWaitForVBlank();
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
-    // gfxSwapBuffers();
-    drawUpper();
-    drawLower();
+    sceneManager.draw(upperScreen, lowerScreen);
+
+    C3D_FrameEnd(0);
 }

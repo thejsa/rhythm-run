@@ -32,7 +32,7 @@ int main(int argc_, char* argv_[])
     eprintf("Init C2D\n");
 
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
-    C3D_FrameRate(30.0);
+    C3D_FrameRate(60.0f);
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
     C2D_Prepare();
 

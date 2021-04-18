@@ -28,12 +28,7 @@ public:
     void update();
     /// Late update code, that must always run after update()
     void lateUpdate();
-
-    /// Draw frame for upper screen
-    void drawUpper();
-    /// Draw frame for lower screen
-    void drawLower();
-    /// Render a full dual-screen frame
+    /// Draw a frame
     void draw();
 
     /// should we quit the program?

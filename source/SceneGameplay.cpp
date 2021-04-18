@@ -292,19 +292,16 @@ void SceneGameplay::update(float a_timeDelta)
     // }
 }
 
-void SceneGameplay::drawUpper(RenderWindow& a_renderWindow)
+void SceneGameplay::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
 {
-    // eprintf("DrawU\n");
-    a_renderWindow.clear(C2D_Color32(255, 255, 255, 255));
-    a_renderWindow.draw(playerEntity);
-    a_renderWindow.draw(platform1Entity);
-    a_renderWindow.draw(platform2Entity);
-    a_renderWindow.draw(platform3Entity);
-    a_renderWindow.draw(platform4Entity);
+    a_renderWindowUpper.beginDraw();
+    a_renderWindowUpper.clear(C2D_Color32(255, 255, 255, 255));
+    a_renderWindowUpper.draw(playerEntity);
+    a_renderWindowUpper.draw(platform1Entity);
+    a_renderWindowUpper.draw(platform2Entity);
+    a_renderWindowUpper.draw(platform3Entity);
+    a_renderWindowUpper.draw(platform4Entity);
+
+    a_renderWindowLower.beginDraw();
+    a_renderWindowLower.clear(C2D_Color32(255, 255, 255, 255));
 }
-void SceneGameplay::drawLower(RenderWindow& a_renderWindow)
-{
-    // ((void)0);
-    a_renderWindow.clear(C2D_Color32(255, 255, 255, 255));
-    // eprintf("DrawL\n");
-} // no-op

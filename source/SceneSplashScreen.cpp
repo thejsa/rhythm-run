@@ -36,8 +36,6 @@ void SceneSplashScreen::onCreate()
     );
 
     // Play audio
-    // soloud.init();
-    // sample.load("romfs:/sample.wav");
     int error = 0;
     opusFile = std::shared_ptr<OggOpusFile>(op_open_file("romfs:/sample.opus", &error), op_free);
 
@@ -144,15 +142,14 @@ void SceneSplashScreen::update(float a_timeDelta)
     }
 }
 
-void SceneSplashScreen::drawUpper(RenderWindow& a_renderWindow)
+void SceneSplashScreen::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
 {
-    // eprintf("DrawU\n");
-    a_renderWindow.clear(C2D_Color32(0, 0, 0, 0));
-    a_renderWindow.draw(splashImageEntity);
+    // clear upper screen & draw splash image
+    a_renderWindowUpper.beginDraw();
+    a_renderWindowUpper.clear(C2D_Color32(0, 0, 0, 0));
+    a_renderWindowUpper.draw(splashImageEntity);
+
+    // clear lower screen
+    a_renderWindowLower.beginDraw();
+    a_renderWindowLower.clear(C2D_Color32(0, 0, 0, 0));
 }
-void SceneSplashScreen::drawLower(RenderWindow& a_renderWindow)
-{
-    // ((void)0);
-    a_renderWindow.clear(C2D_Color32(0, 0, 0, 0));
-    // eprintf("DrawL\n");
-} // no-op

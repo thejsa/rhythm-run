@@ -267,22 +267,19 @@ void SceneMenu::update(float a_timeDelta)
     // }
 }
 
-void SceneMenu::drawUpper(RenderWindow& a_renderWindow)
+void SceneMenu::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
 {
-    // eprintf("DrawU\n");
-    a_renderWindow.clear(C2D_Color32(0, 0, 0, 0));
-    a_renderWindow.draw(splashImageEntity);
-}
-void SceneMenu::drawLower(RenderWindow& a_renderWindow)
-{
-    // ((void)0);
-    a_renderWindow.clear(C2D_Color32(0xDD, 0xFF, 0xFF, 0xFF));
+    // draw upper screen & splash image
+    a_renderWindowUpper.beginDraw();
 
-    a_renderWindow.draw(button1);
-    // a_renderWindow.draw(button1Label);
-    a_renderWindow.draw(button2);
-    // a_renderWindow.draw(button2Label);
-    a_renderWindow.draw(button3);
-    // a_renderWindow.draw(button3Label);
-    // eprintf("DrawL\n");
-} // no-op
+    a_renderWindowUpper.clear(C2D_Color32(0, 0, 0, 0));
+    a_renderWindowUpper.draw(splashImageEntity);
+
+    // draw lower screen & buttons
+    a_renderWindowLower.beginDraw();
+    a_renderWindowLower.clear(C2D_Color32(0xDD, 0xFF, 0xFF, 0xFF));
+
+    a_renderWindowLower.draw(button1);
+    a_renderWindowLower.draw(button2);
+    a_renderWindowLower.draw(button3);
+}

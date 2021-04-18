@@ -31,8 +31,7 @@ public:
     void update(float a_timeDelta) override;
     // void lateUpdate(float a_timeDelta) override;
 
-    void drawUpper(RenderWindow& a_renderWindow) override;
-    void drawLower(RenderWindow& a_renderWindow) override;
+    void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) override;
 
     // void draw(RenderWindow& a_renderWindow);
 private:

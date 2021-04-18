@@ -18,44 +18,21 @@ public:
     {
         eprintf("Init %d/%d\n", a_screen, a_stereoSide);
         renderTarget = C2D_CreateScreenTarget(a_screen, a_stereoSide);
-
-        // beginDraw();
-        // clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
-        // endDraw();
     };
 
     /// Update
     void update() { ((void)0); };
 
-    /// Begin drawing
+    /// Begin drawing on this RenderWindow
     void beginDraw()
     {
-        // eprintf("Begin Draw\n");
-
-        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_SceneBegin(renderTarget);
-
-        // clear(C2D_Color32(0xFF, 0x44, 0x77, 0xFF));
     };
 
     /// Draw something
     void draw(const std::shared_ptr<Drawable> a_drawable)
     {
         a_drawable->draw();
-    };
-
-    /// End drawing
-    void endDraw()
-    {
-        // eprintf("EndDraw\n");
-        C3D_FrameEnd(0);
-
-        // float gpuTime = C3D_GetDrawingTime();
-        // float cpuTime = C3D_GetProcessingTime();
-
-        // printf("\x1b[29;1HGPU: %.02f ms; CPU: %.02f ms  ", gpuTime, cpuTime);
-        // eprintf("")
-        // gfxSwapBuffers();
     };
 
     /// Clear the window with a particular colour

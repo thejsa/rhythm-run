@@ -33,17 +33,6 @@ public:
             quit();
     };
 
-    inline void drawUpper(RenderWindow& a_renderWindow)
-    {
-        if (currentScene && !shouldShutdown())
-            currentScene->drawUpper(a_renderWindow);
-    };
-    inline void drawLower(RenderWindow& a_renderWindow)
-    {
-        if (currentScene && !shouldShutdown())
-            currentScene->drawLower(a_renderWindow);
-    };
-
     inline void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
     {
         if (currentScene && !shouldShutdown())

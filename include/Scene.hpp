@@ -32,15 +32,7 @@ public:
     virtual void processInput() {};
     virtual void update(float a_timeDelta) {};
     virtual void lateUpdate(float a_timeDelta) {};
-
-    virtual void drawUpper(RenderWindow& a_renderWindow);
-    virtual void drawLower(RenderWindow& a_renderWindow);
-
-    virtual void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
-    {
-        drawUpper(a_renderWindowUpper);
-        drawLower(a_renderWindowLower);
-    }
+    virtual void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower);
 
     // void begin() { renderWindow->beginDraw(); }
 
