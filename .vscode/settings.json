@@ -49,5 +49,9 @@
         "sstream": "cpp",
         "cinttypes": "cpp"
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "C_Cpp.clang_format_fallbackStyle": "WebKit",
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
 }
