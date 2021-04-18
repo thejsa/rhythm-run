@@ -9,10 +9,10 @@
  * Player class
  */
 
-class Player : public Entity
-{
+class Player : public Entity {
 public:
     void jump();
+
 private:
     float fSpeed;
     float fWeight;

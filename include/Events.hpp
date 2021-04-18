@@ -8,13 +8,14 @@
 
 #include "Geometry.hpp"
 
-template<typename T> using callback_t = std::function<void(T)>;
+template <typename T>
+using callback_t = std::function<void(T)>;
 
 /// Touch event types
 typedef enum touchEventKind_t {
     TOUCH_START = 0,
-    TOUCH_END   = 1,
-    TOUCH_MOVE  = 2,
+    TOUCH_END = 1,
+    TOUCH_MOVE = 2,
 } touchEventKind_t;
 
 /// Touch event

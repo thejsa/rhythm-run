@@ -7,12 +7,10 @@
 #include <memory>
 #include <vector>
 
-#include "RenderWindow.hpp"
 #include "Drawable.hpp"
+#include "RenderWindow.hpp"
 
-
-class Scene
-{
+class Scene {
 public:
     // Pure virtual function
     /// Called when the scene is initially created (one shot)
@@ -34,11 +32,12 @@ public:
     virtual void processInput() {};
     virtual void update(float a_timeDelta) {};
     virtual void lateUpdate(float a_timeDelta) {};
-    
+
     virtual void drawUpper(RenderWindow& a_renderWindow);
     virtual void drawLower(RenderWindow& a_renderWindow);
 
-    virtual void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) {
+    virtual void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
+    {
         drawUpper(a_renderWindowUpper);
         drawLower(a_renderWindowLower);
     }
@@ -58,7 +57,7 @@ public:
     // void clear(u32 a_color);
 
     // std::vector<std::shared_ptr<Drawable>> drawables;
-// private:
+    // private:
     // RenderWindow* renderWindow;
     // gfxScreen_t screen;
     // gfx3dSide_t stereoSide;

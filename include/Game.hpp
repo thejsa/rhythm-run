@@ -5,24 +5,23 @@
 
 #pragma once
 
-#include "RenderWindow.hpp"
-#include "Label.hpp"
-#include "Entity.hpp"
-#include "SceneManager.hpp"
 #include "AudioManager.hpp"
+#include "Entity.hpp"
+#include "Label.hpp"
+#include "RenderWindow.hpp"
+#include "SceneManager.hpp"
 
 #include <3ds.h>
-#include <stdint.h>
 #include <memory>
+#include <stdint.h>
 
-class Game
-{
+class Game {
 public:
     Game();
 
     /// Step the timer
     void stepTimer();
-    
+
     /// Input processing code
     void processInput();
     /// Standard update code
@@ -39,21 +38,24 @@ public:
 
     /// should we quit the program?
     /// ask scene manager.
-    inline bool shouldQuit() {
+    inline bool shouldQuit()
+    {
         return sceneManager.shouldQuit();
     }
-    
-    inline bool isRunning() {  // Should the game continue running?
+
+    inline bool isRunning()
+    { // Should the game continue running?
         // Quit if APT says we should, or if we've set the quit flag
         return aptMainLoop() && !shouldQuit();
     };
+
 private:
     RenderWindow upperScreen;
     RenderWindow lowerScreen;
-    
+
     SceneManager sceneManager;
     AudioManager audioManager;
-    
+
     u64 lastTime;
     float timeDelta;
 };

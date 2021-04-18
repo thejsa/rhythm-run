@@ -15,25 +15,25 @@
  * Button class
  */
 
-class Button : public Entity
-{
+class Button : public Entity {
 public:
     Button(float a_x, float a_y, C2D_SpriteSheet a_spriteSheet,
         size_t a_spriteIndex, size_t a_spriteIndex_pressed,
-    	float a_centerX, float a_centerY,
+        float a_centerX, float a_centerY,
         float a_scaleX, float a_scaleY,
-    	float a_rotation)
-    : Entity(a_x, a_y, a_spriteSheet, a_spriteIndex, a_centerX, a_centerY,
-        a_scaleX, a_scaleY, a_rotation),
-        isPressed(false),
-        spriteIndex_pressed(a_spriteIndex_pressed) {};
+        float a_rotation)
+        : Entity(a_x, a_y, a_spriteSheet, a_spriteIndex, a_centerX, a_centerY,
+            a_scaleX, a_scaleY, a_rotation)
+        , isPressed(false)
+        , spriteIndex_pressed(a_spriteIndex_pressed) {};
     Button() {}; // default empty constructor
 
     /// @brief Add event listener
     /// @param a_eventType Event to listen for
     /// @param a_listener  Event listener
-    void addEventListener(const touchEventKind_t a_eventType, const callback_t<touchEvent_t> &a_listener) {
-        callbacks.push_back({a_listener, a_eventType});
+    void addEventListener(const touchEventKind_t a_eventType, const callback_t<touchEvent_t>& a_listener)
+    {
+        callbacks.push_back({ a_listener, a_eventType });
     };
 
     /// @brief Set the sprite graphic to be displayed
@@ -49,6 +49,7 @@ public:
 
     inline bool getPressed() { return isPressed; }
     void setPressed(bool a_newState);
+
 protected:
     /// @brief Whether or not the button is in its pressed/held state.
     bool isPressed;

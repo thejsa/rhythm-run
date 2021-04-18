@@ -5,8 +5,8 @@
 #include <algorithm>
 // #include <atomic>
 
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 
 #include <memory>
@@ -18,18 +18,19 @@
 #include "debug.hpp"
 
 /// Finite state machine to handle background music management
-class AudioManager
-{
+class AudioManager {
 public:
     AudioManager();
     ~AudioManager();
 
     // Passthrough function to execute audioThread instance method from threadCreate
-    static inline void proxyAudioThread(void* a_ctx) {
+    static inline void proxyAudioThread(void* a_ctx)
+    {
         static_cast<AudioManager*>(a_ctx)->audioThread();
     };
     // Passthrough function to execute audioCallback instance method from NDSP
-    static inline void proxyAudioCallback(void* a_ctx) {
+    static inline void proxyAudioCallback(void* a_ctx)
+    {
         static_cast<AudioManager*>(a_ctx)->audioCallback();
     };
 
@@ -44,10 +45,12 @@ public:
     /// Stop playback and free the playback thread.
     void stop();
     /// Is playback 'paused' (whether stopped or not playing)?
-    inline bool isStopped() {
+    inline bool isStopped()
+    {
         return shouldStop;
     };
-    inline bool isPaused() {
+    inline bool isPaused()
+    {
         return isStopped() ? true : ndspChnIsPaused(BGM_CHANNEL);
     };
 
@@ -55,21 +58,24 @@ public:
     // void pause() {
     //     shouldStop = true;
     // }
-    inline void pause() {
+    inline void pause()
+    {
         eprintf("pa\n");
         // shouldPause = true;
         ndspChnSetPaused(BGM_CHANNEL, true);
     };
-    inline void unpause() {
+    inline void unpause()
+    {
         eprintf("upa\n");
         // shouldPause = true;
         ndspChnSetPaused(BGM_CHANNEL, false);
         LightEvent_Signal(&audioEvent);
     };
-    inline void togglePause() {
+    inline void togglePause()
+    {
         eprintf("tpa\n");
         // shouldPause = true;
-        if(!shouldStop)
+        if (!shouldStop)
             ndspChnSetPaused(BGM_CHANNEL, !isPaused());
         LightEvent_Signal(&audioEvent);
     };
@@ -81,16 +87,18 @@ public:
     /// Is playback currently switching audio file?
     bool isSkipping;
 
-    inline void audioCallback() {
+    inline void audioCallback()
+    {
         // Do not signal the audio thread if we want to interrupt its work
         // (e.g, when playback is stopped or if we're changing audio data)
-        if(shouldStop || isSkipping)
+        if (shouldStop || isSkipping)
             return;
-        
+
         // Signal the audio thread to do more work
         LightEvent_Signal(&audioEvent);
         // svcSleepThread(0);
     }
+
 private:
     void initPlayback();
     void doPlayback();
@@ -103,14 +111,14 @@ private:
     // bool shouldQuit  = false;
 
     ndspWaveBuf waveBufs[3];
-    int16_t *audioBuffer = nullptr;
-    
+    int16_t* audioBuffer = nullptr;
+
     Thread threadId;
 
-    bool fillBuffer(OggOpusFile *const a_opusFile, ndspWaveBuf &a_waveBuf);
+    bool fillBuffer(OggOpusFile* const a_opusFile, ndspWaveBuf& a_waveBuf);
 
     void audioThread();
-    
+
     /// Stores all files
     std::unordered_map<unsigned int, std::shared_ptr<OggOpusFile>> files;
     /// Stores a reference to the current file
@@ -120,17 +128,17 @@ private:
 
     // Defines
     static constexpr auto BGM_CHANNEL = 0;
-    
+
     static constexpr auto SAMPLE_RATE = 48000;
-    static constexpr auto BUFFER_MS   = 120;
+    static constexpr auto BUFFER_MS = 120;
 
     static constexpr auto SAMPLES_PER_BUF = SAMPLE_RATE * BUFFER_MS / 1000;
     static_assert(SAMPLES_PER_BUF == 5760);
-    
+
     static constexpr auto CHANNELS_PER_SAMPLE = 2;
 
     static constexpr auto WAVEBUF_SIZE = SAMPLES_PER_BUF * CHANNELS_PER_SAMPLE * sizeof(std::int16_t);
-    
+
     // threading
     static constexpr auto THREAD_AFFINITY = -2;
     static constexpr auto THREAD_STACK_SIZE = 32 * 1024;

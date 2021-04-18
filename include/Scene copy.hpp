@@ -7,18 +7,18 @@
 #include <memory>
 #include <vector>
 
-#include "RenderWindow.hpp"
 #include "Drawable.hpp"
+#include "RenderWindow.hpp"
 
-
-class Scene
-{
+class Scene {
 public:
-    Scene(RenderWindow* p_renderWindow) : renderWindow(p_renderWindow) {};
+    Scene(RenderWindow* p_renderWindow)
+        : renderWindow(p_renderWindow) {};
 
     void begin() { renderWindow->beginDraw(); }
 
-    bool renderObjects() {
+    bool renderObjects()
+    {
         renderWindow->beginDraw();
 
         for (auto&& obj : drawables) {
@@ -31,6 +31,7 @@ public:
     // void clear(u32 p_color);
 
     std::vector<std::shared_ptr<Drawable>> drawables;
+
 private:
     RenderWindow* renderWindow;
     // gfxScreen_t screen;

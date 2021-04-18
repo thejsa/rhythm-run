@@ -5,13 +5,13 @@
 
 #include "debug.hpp"
 
+#include "Entity.hpp"
 #include "Game.hpp"
 #include "Label.hpp"
-#include "Entity.hpp"
 
+#include "SceneGameplay.hpp"
 #include "SceneMenu.hpp"
 #include "SceneSplashScreen.hpp"
-#include "SceneGameplay.hpp"
 
 #include <3ds.h>
 #include <memory>
@@ -19,123 +19,130 @@
 #include <citro2d.h>
 
 Game::Game()
-:upperScreen(GFX_TOP, GFX_LEFT), lowerScreen(GFX_BOTTOM, GFX_LEFT)
+    : upperScreen(GFX_TOP, GFX_LEFT)
+    , lowerScreen(GFX_BOTTOM, GFX_LEFT)
 {
-	// Init clock
-	// PLATFORM SPECIFIC
-	lastTime = osGetTime(); // milliseconds
-	timeDelta = 0.0f;
+    // Init clock
+    // PLATFORM SPECIFIC
+    lastTime = osGetTime(); // milliseconds
+    timeDelta = 0.0f;
 
-	// these are automatic?
-	// sceneManager = SceneManager();
-	// audioManager = AudioManager();
-	
-	// Init scenes
+    // these are automatic?
+    // sceneManager = SceneManager();
+    // audioManager = AudioManager();
 
-	std::shared_ptr<SceneSplashScreen> splashScene1 = std::make_shared<SceneSplashScreen>(
-		sceneManager,
-		audioManager,
-		0 // sprite index
-	);
-	std::shared_ptr<SceneSplashScreen> splashScene2 = std::make_shared<SceneSplashScreen>(
-		sceneManager,
-		audioManager,
-		2 // sprite index
-	);
-	std::shared_ptr<SceneGameplay> gameplayScene = std::make_shared<SceneGameplay>(
-		sceneManager,
-		audioManager,
-		// "newspapers_for_magicians" // track
-		"moonlight_sonata" // track
-	);
-	
-	eprintf("adding scenes to manager\n");
+    // Init scenes
 
-	unsigned int splashScene1Id = sceneManager.addScene(splashScene1);
-	unsigned int splashScene2Id = sceneManager.addScene(splashScene2);
-	unsigned int gameplaySceneId = sceneManager.addScene(gameplayScene);
+    std::shared_ptr<SceneSplashScreen> splashScene1 = std::make_shared<SceneSplashScreen>(
+        sceneManager,
+        audioManager,
+        0 // sprite index
+    );
+    std::shared_ptr<SceneSplashScreen> splashScene2 = std::make_shared<SceneSplashScreen>(
+        sceneManager,
+        audioManager,
+        2 // sprite index
+    );
+    std::shared_ptr<SceneGameplay> gameplayScene = std::make_shared<SceneGameplay>(
+        sceneManager,
+        audioManager,
+        // "newspapers_for_magicians" // track
+        "moonlight_sonata" // track
+    );
 
-	std::shared_ptr<SceneMenu> theMenu = std::make_shared<SceneMenu>(
-		sceneManager,
-		audioManager,
-		gameplaySceneId,
-		splashScene1Id
-	);
+    eprintf("adding scenes to manager\n");
 
-	unsigned int menuSceneId = sceneManager.addScene(theMenu);
+    unsigned int splashScene1Id = sceneManager.addScene(splashScene1);
+    unsigned int splashScene2Id = sceneManager.addScene(splashScene2);
+    unsigned int gameplaySceneId = sceneManager.addScene(gameplayScene);
 
-	// eprintf("setting nextSceneIds %u->%u %u->%u %u->%u\n", splashScene1Id, splashScene2Id, splashScene2Id, splashScene3Id, splashScene3Id, splashScene1Id);
+    std::shared_ptr<SceneMenu> theMenu = std::make_shared<SceneMenu>(
+        sceneManager,
+        audioManager,
+        gameplaySceneId,
+        splashScene1Id);
 
-	// just cycle the splash screens until we implement more fun stuff
-	splashScene1->setNextSceneId(splashScene2Id);
-	splashScene2->setNextSceneId(menuSceneId);
-	gameplayScene->setNextSceneId(menuSceneId);
-	// splashScene1->setNextSceneId(splashScene2Id);
-	// splashScene2->setNextSceneId(splashScene3Id);
-	// splashScene3->setNextSceneId(splashScene1Id);
+    unsigned int menuSceneId = sceneManager.addScene(theMenu);
 
-	eprintf("Begin by switching focus to menu scene, id: %u\n", menuSceneId);
-	sceneManager.switchFocusTo(menuSceneId);
+    // eprintf("setting nextSceneIds %u->%u %u->%u %u->%u\n", splashScene1Id, splashScene2Id, splashScene2Id, splashScene3Id, splashScene3Id, splashScene1Id);
+
+    // just cycle the splash screens until we implement more fun stuff
+    splashScene1->setNextSceneId(splashScene2Id);
+    splashScene2->setNextSceneId(menuSceneId);
+    gameplayScene->setNextSceneId(menuSceneId);
+    // splashScene1->setNextSceneId(splashScene2Id);
+    // splashScene2->setNextSceneId(splashScene3Id);
+    // splashScene3->setNextSceneId(splashScene1Id);
+
+    eprintf("Begin by switching focus to menu scene, id: %u\n", menuSceneId);
+    sceneManager.switchFocusTo(menuSceneId);
 }
 
-void Game::stepTimer() {
-	u64 currentTime = osGetTime(); // ms
-	timeDelta = (currentTime - lastTime) / 1000.0f; // seconds
-	// eprintf("current: %llu, last: %llu, delta: %f\n", currentTime, lastTime, timeDelta);
-	lastTime = currentTime;
-	// return timeDelta;
+void Game::stepTimer()
+{
+    u64 currentTime = osGetTime(); // ms
+    timeDelta = (currentTime - lastTime) / 1000.0f; // seconds
+    // eprintf("current: %llu, last: %llu, delta: %f\n", currentTime, lastTime, timeDelta);
+    lastTime = currentTime;
+    // return timeDelta;
 }
 
-void Game::processInput() {
-	// Respond to user input
-	hidScanInput();
-	
-	if(hidKeysDown() & KEY_START) {
-		eprintf("keyStart -- quit flag!\n");
-		// signal sceneManager to shutdown
-		sceneManager.shutdown();
-	}
-	
-	sceneManager.processInput();
+void Game::processInput()
+{
+    // Respond to user input
+    hidScanInput();
 
-	// eprintf("update end\n");
+    if (hidKeysDown() & KEY_START) {
+        eprintf("keyStart -- quit flag!\n");
+        // signal sceneManager to shutdown
+        sceneManager.shutdown();
+    }
+
+    sceneManager.processInput();
+
+    // eprintf("update end\n");
 };
 
-void Game::update() {
-	// ((void)0);
-	stepTimer();
-	
-	sceneManager.update(timeDelta);
+void Game::update()
+{
+    // ((void)0);
+    stepTimer();
 
-	// eprintf("update end\n");
+    sceneManager.update(timeDelta);
+
+    // eprintf("update end\n");
 };
 
-void Game::lateUpdate() {
-	sceneManager.lateUpdate(timeDelta);
+void Game::lateUpdate()
+{
+    sceneManager.lateUpdate(timeDelta);
 };
 
-void Game::drawUpper() {
-	// eprintf("BeginDrawU\n");
-	upperScreen.beginDraw();
-	sceneManager.drawUpper(upperScreen);
-	upperScreen.endDraw();
-	// eprintf("End\n");
+void Game::drawUpper()
+{
+    // eprintf("BeginDrawU\n");
+    upperScreen.beginDraw();
+    sceneManager.drawUpper(upperScreen);
+    upperScreen.endDraw();
+    // eprintf("End\n");
 };
 
-void Game::drawLower() {
-	// eprintf("BeginDrawL\n");
-	lowerScreen.beginDraw();
-	sceneManager.drawLower(lowerScreen);
-	lowerScreen.endDraw();
-	// eprintf("End\n");
+void Game::drawLower()
+{
+    // eprintf("BeginDrawL\n");
+    lowerScreen.beginDraw();
+    sceneManager.drawLower(lowerScreen);
+    lowerScreen.endDraw();
+    // eprintf("End\n");
 };
 
-void Game::draw() {
-	// gfxFlushBuffers();
-	// gfxSwapBuffers();
-	// gspWaitForVBlank();
+void Game::draw()
+{
+    // gfxFlushBuffers();
+    // gfxSwapBuffers();
+    // gspWaitForVBlank();
 
-	// gfxSwapBuffers();
-	drawUpper();
-	drawLower();
+    // gfxSwapBuffers();
+    drawUpper();
+    drawLower();
 }

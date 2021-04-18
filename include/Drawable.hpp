@@ -10,8 +10,7 @@
  * Provides an interface to be implemented by objects which are drawn.
  */
 
-class Drawable
-{
+class Drawable {
 public:
     // Pure virtual function, since this class shouldn't be instantiated
     // Instead, subclasses must implement this themselves

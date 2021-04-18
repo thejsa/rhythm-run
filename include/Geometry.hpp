@@ -20,10 +20,11 @@ public:
 
     /// Rectangle constructor.
     Rectangle(Point a_topLeft, Point a_lowerRight)
-        : topLeft(a_topLeft), lowerRight(a_lowerRight) { };
+        : topLeft(a_topLeft)
+        , lowerRight(a_lowerRight) {};
 
     /// Returns the width of the rectangle.
-    float getWidth()  { return lowerRight.x - topLeft.x; }
+    float getWidth() { return lowerRight.x - topLeft.x; }
     /// Returns the height of the rectangle.
     float getHeight() { return lowerRight.y - topLeft.y; }
 
@@ -53,13 +54,10 @@ public:
     // };
 
     /// Returns true if this Rectangle intersects with the Rectangle provided as the argument.
-    bool doesIntersect(Rectangle a_rect) {
+    bool doesIntersect(Rectangle a_rect)
+    {
         return (
-            this->topLeft.x < a_rect.lowerRight.x &&
-            this->lowerRight.x > a_rect.topLeft.x &&
-            this->topLeft.y < a_rect.lowerRight.y &&
-            this->lowerRight.y > a_rect.topLeft.y
-        );
+            this->topLeft.x<a_rect.lowerRight.x&& this->lowerRight.x> a_rect.topLeft.x && this->topLeft.y<a_rect.lowerRight.y&& this->lowerRight.y> a_rect.topLeft.y);
     }
 
     // bool doesIntersect(Rectangle a_rect) {
@@ -76,7 +74,8 @@ public:
     // }
 
     /// Returns true if this Rectangle intersects the given Point.
-    inline bool doesIntersect(Point a_point) {
+    inline bool doesIntersect(Point a_point)
+    {
         // Construct a 1x1 rectangle of the point.
         return doesIntersect(Rectangle(a_point, a_point));
     }

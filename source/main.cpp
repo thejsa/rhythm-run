@@ -5,54 +5,55 @@
 
 #include "debug.hpp"
 
-#include <3ds.h>
 #include "Game.hpp"
+#include <3ds.h>
 
-int main(int argc_, char *argv_[]) {
-	// #ifdef DEBUG
-	// printf("gdbHioDevInit %d\n", gdbHioDevInit());
-	gdbHioDevInit();
-	gdbHioDevRedirectStdStreams(true, true, true);
-	eprintf("Hello from 3DS!\n");
-	// #endif
-	
-	// Init libs
-	gfxInitDefault();
-	romfsInit();
+int main(int argc_, char* argv_[])
+{
+    // #ifdef DEBUG
+    // printf("gdbHioDevInit %d\n", gdbHioDevInit());
+    gdbHioDevInit();
+    gdbHioDevRedirectStdStreams(true, true, true);
+    eprintf("Hello from 3DS!\n");
+    // #endif
 
-	// Init console on touchscreen
-	// consoleInit(GFX_BOTTOM, NULL);
-	// consoleInit(GFX_TOP, NULL);
-	// eprintf("inited console\n");
+    // Init libs
+    gfxInitDefault();
+    romfsInit();
 
-	// enable New3ds speedup
-	osSetSpeedupEnable(true);
+    // Init console on touchscreen
+    // consoleInit(GFX_BOTTOM, NULL);
+    // consoleInit(GFX_TOP, NULL);
+    // eprintf("inited console\n");
 
-	eprintf("Init C2D\n");
+    // enable New3ds speedup
+    osSetSpeedupEnable(true);
 
-	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
-	C3D_FrameRate(30.0);
-	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
-	C2D_Prepare();
+    eprintf("Init C2D\n");
 
-	// Game loop
-	Game game;
+    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
+    C3D_FrameRate(30.0);
+    C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
+    C2D_Prepare();
 
-	while(game.isRunning()) {
-		// eprintf("aptMainLoop tick\n");
-		game.processInput();
-		game.update();
-		game.lateUpdate();
-		game.draw();
-	}
+    // Game loop
+    Game game;
 
-	C2D_Fini();
-	C3D_Fini();
-	gfxExit();
+    while (game.isRunning()) {
+        // eprintf("aptMainLoop tick\n");
+        game.processInput();
+        game.update();
+        game.lateUpdate();
+        game.draw();
+    }
 
-	// #ifdef DEBUG
-	gdbHioDevExit();
-	// #endif
+    C2D_Fini();
+    C3D_Fini();
+    gfxExit();
 
-	return 0;
+    // #ifdef DEBUG
+    gdbHioDevExit();
+    // #endif
+
+    return 0;
 }

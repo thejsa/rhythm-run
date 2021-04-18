@@ -4,20 +4,25 @@
 
 /// Constructor
 AudioManager::AudioManager()
-:shouldStop(true), isSkipping(false), files(0),
-currentFile(nullptr), fileCounter(0) {
+    : shouldStop(true)
+    , isSkipping(false)
+    , files(0)
+    , currentFile(nullptr)
+    , fileCounter(0)
+{
     eprintf("init\n");
     ndspInit();
 
     auto const bufferSize = WAVEBUF_SIZE * std::extent_v<decltype(waveBufs)>;
 
     audioBuffer = static_cast<int16_t*>(linearAlloc(bufferSize));
-    if(!audioBuffer) {
+    if (!audioBuffer) {
         eprintf("Failed to allocate audio buffer\n");
     }
 }
 
-AudioManager::~AudioManager() {
+AudioManager::~AudioManager()
+{
     eprintf("cleanup\n");
     stop();
     files.clear();
@@ -30,7 +35,8 @@ AudioManager::~AudioManager() {
     eprintf("all done!\n");
 }
 
-void AudioManager::stop() {
+void AudioManager::stop()
+{
     eprintf("stop called!\n");
     shouldStop = true;
 
@@ -42,7 +48,7 @@ void AudioManager::stop() {
 
     // get exit code
     int exitCode = threadGetExitCode(threadId);
-    if(exitCode != 0) {
+    if (exitCode != 0) {
         // error!
         eprintf("ERROR: thread returned exit code %d\n", exitCode);
     }
@@ -54,13 +60,14 @@ void AudioManager::stop() {
     threadId = NULL;
 }
 
-void AudioManager::play() {
+void AudioManager::play()
+{
     // Create audio thread
     s32 priority = 0x30;
-	svcGetThreadPriority (&priority, CUR_THREAD_HANDLE);
-	priority = std::clamp<s32> (priority - 1, 0x18, 0x3F);
+    svcGetThreadPriority(&priority, CUR_THREAD_HANDLE);
+    priority = std::clamp<s32>(priority - 1, 0x18, 0x3F);
 
-	threadId = threadCreate (proxyAudioThread, this, THREAD_STACK_SIZE, priority, THREAD_AFFINITY, false);
+    threadId = threadCreate(proxyAudioThread, this, THREAD_STACK_SIZE, priority, THREAD_AFFINITY, false);
     // eprintf("created thread with id %x\n", (unsigned int) threadId);
 
     // eprintf("pl\n");
@@ -70,7 +77,8 @@ void AudioManager::play() {
     // LightEvent_Signal(&playEvent);
 }
 
-bool AudioManager::fillBuffer(OggOpusFile *const a_opusFile, ndspWaveBuf &a_waveBuf) {
+bool AudioManager::fillBuffer(OggOpusFile* const a_opusFile, ndspWaveBuf& a_waveBuf)
+{
     // eprintf("!\n");
     // #ifdef DEBUG
     // TickCounter timer;
@@ -85,15 +93,14 @@ bool AudioManager::fillBuffer(OggOpusFile *const a_opusFile, ndspWaveBuf &a_wave
         // decode samples
         auto const samples = op_read_stereo(a_opusFile, buffer, bufferSize);
         // eprintf("decoded %d samples\n", samples);
-        
-        if(samples <= 0)
+
+        if (samples <= 0)
             break;
-        
+
         totalSamples += samples;
     }
 
-    if(totalSamples == 0)
-    {
+    if (totalSamples == 0) {
         eprintf("Playback complete\n");
         return false;
         // TODO: Looping audio
@@ -105,14 +112,15 @@ bool AudioManager::fillBuffer(OggOpusFile *const a_opusFile, ndspWaveBuf &a_wave
     // osTickCounterUpdate(&timer);
     // eprintf("fillBuffer %lf ms in %lf ms\n", totalSamples * 1000.0 / SAMPLE_RATE, osTickCounterRead(&timer));
     // #endif
-    
+
     return true;
 };
 
-void AudioManager::audioThread() {
+void AudioManager::audioThread()
+{
     // auto const opusFile = static_cast<OggOpusFile*>(a_arg);
     eprintf("Hello from audio thread!\n");
-    if(!currentFile) {
+    if (!currentFile) {
         eprintf("no file!\n");
 
         // exit
@@ -129,11 +137,10 @@ void AudioManager::audioThread() {
     eprintf("let's go!\n");
     shouldStop = false;
 
-    while(!shouldStop && !isSkipping) {
+    while (!shouldStop && !isSkipping) {
 
         // yield
         svcSleepThread(0);
-
 
         // eprintf("!\n");
         // if(shouldPause) {
@@ -143,14 +150,15 @@ void AudioManager::audioThread() {
         //     continue;
         // }
 
-        for(auto &waveBuf : waveBufs) {
+        for (auto& waveBuf : waveBufs) {
             // yield
             svcSleepThread(0);
 
-            if(waveBuf.status != NDSP_WBUF_DONE) continue;
+            if (waveBuf.status != NDSP_WBUF_DONE)
+                continue;
 
             // fill buffer, or break if end of file
-            if(!fillBuffer(currentFile.get(), waveBuf)) {
+            if (!fillBuffer(currentFile.get(), waveBuf)) {
                 eprintf("reached end of audio playback\n");
                 shouldStop = true;
                 break;
@@ -182,7 +190,8 @@ void AudioManager::audioThread() {
     threadExit(0);
 }
 
-void AudioManager::initPlayback() {
+void AudioManager::initPlayback()
+{
     eprintf("hi!\n");
     // Initialise NDSP
     ndspChnReset(BGM_CHANNEL);
@@ -200,16 +209,17 @@ void AudioManager::initPlayback() {
     // Initialise wavebufs
     std::memset(&waveBufs, 0, sizeof(waveBufs));
 
-    for(auto &waveBuf : waveBufs) {
+    for (auto& waveBuf : waveBufs) {
         waveBuf.data_vaddr = buffer;
-        waveBuf.status     = NDSP_WBUF_DONE;
+        waveBuf.status = NDSP_WBUF_DONE;
 
         buffer += WAVEBUF_SIZE / sizeof(buffer[0]);
     }
 }
 
-unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> a_file) {
-	// eprintf("id:%u p:%x\n", fileCounter, a_file);
+unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> a_file)
+{
+    // eprintf("id:%u p:%x\n", fileCounter, a_file);
     /// Add an id-file pair to the files map
     // auto insertedFile = files.insert(std::make_pair(fileCounter, a_file));
     files.insert(std::make_pair(fileCounter, a_file));
@@ -221,15 +231,16 @@ unsigned int AudioManager::addFile(std::shared_ptr<OggOpusFile> a_file) {
     return fileCounter++;
 };
 
-void AudioManager::removeFile(unsigned int a_fileId) {
+void AudioManager::removeFile(unsigned int a_fileId)
+{
     // Find the id-file pair for a_fileId
-	eprintf("id:%u\n", a_fileId);
+    eprintf("id:%u\n", a_fileId);
     auto filePair = files.find(a_fileId);
 
-    if(filePair != files.end()) {
+    if (filePair != files.end()) {
         // If file being removed is the current file, set it to nullptr
         // to make sure we don't try to continue updating a nonexistant file
-        if(currentFile == filePair->second) {
+        if (currentFile == filePair->second) {
             currentFile = nullptr;
         }
 
@@ -241,26 +252,27 @@ void AudioManager::removeFile(unsigned int a_fileId) {
     }
 }
 
-int AudioManager::switchFileTo(unsigned int a_fileId) {
+int AudioManager::switchFileTo(unsigned int a_fileId)
+{
     // Tear down any running playback thread
-    if(threadId != NULL)
+    if (threadId != NULL)
         stop();
-    
+
     // Seek any active audio file to the start
-    if(currentFile)
+    if (currentFile)
         op_raw_seek(currentFile.get(), 0);
 
     // Find the id-file pair for a_fileId
-	eprintf("%u\n", a_fileId);
+    eprintf("%u\n", a_fileId);
     auto filePair = files.find(a_fileId);
 
     // Validate that the file was found
-    if(filePair == files.end()) {
+    if (filePair == files.end()) {
         eprintf("file id %d not found!!\n", a_fileId);
         // svcBreak(USERBREAK_PANIC);
         return 1;
     }
-    
+
     // Set current file to new file
     currentFile = filePair->second;
 

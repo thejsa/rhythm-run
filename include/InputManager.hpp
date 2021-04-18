@@ -9,31 +9,42 @@
 #include "Events.hpp"
 
 /// Input manager
-class InputManager
-{
+class InputManager {
 public:
     InputManager();
 
     // Pass through to active scene
-    void processInput() {
-        if(currentScene) currentScene->processInput();
+    void processInput()
+    {
+        if (currentScene)
+            currentScene->processInput();
     };
-    void update(float a_timeDelta) {
-        if(currentScene) currentScene->update(a_timeDelta);
+    void update(float a_timeDelta)
+    {
+        if (currentScene)
+            currentScene->update(a_timeDelta);
     };
-    void lateUpdate(float a_timeDelta) {
-        if(currentScene) currentScene->lateUpdate(a_timeDelta);
+    void lateUpdate(float a_timeDelta)
+    {
+        if (currentScene)
+            currentScene->lateUpdate(a_timeDelta);
     };
 
-    void drawUpper(RenderWindow& a_renderWindow) {
-        if(currentScene) currentScene->drawUpper(a_renderWindow);
+    void drawUpper(RenderWindow& a_renderWindow)
+    {
+        if (currentScene)
+            currentScene->drawUpper(a_renderWindow);
     };
-    void drawLower(RenderWindow& a_renderWindow) {
-        if(currentScene) currentScene->drawLower(a_renderWindow);
+    void drawLower(RenderWindow& a_renderWindow)
+    {
+        if (currentScene)
+            currentScene->drawLower(a_renderWindow);
     };
 
-    void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) {
-        if(currentScene) currentScene->draw(a_renderWindowUpper, a_renderWindowLower);
+    void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
+    {
+        if (currentScene)
+            currentScene->draw(a_renderWindowUpper, a_renderWindowLower);
     };
 
     // Add scene to the state machine, returning its ID

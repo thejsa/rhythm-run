@@ -2,11 +2,17 @@
 
 /// Constructor
 SceneManager::SceneManager()
-:scenes(0), currentScene(nullptr), sceneCounter(0),
-shutdownFlag(false), quitFlag(false) {}
+    : scenes(0)
+    , currentScene(nullptr)
+    , sceneCounter(0)
+    , shutdownFlag(false)
+    , quitFlag(false)
+{
+}
 
-unsigned int SceneManager::addScene(std::shared_ptr<Scene> a_scene) {
-	// eprintf("id:%u p:%x\n", sceneCounter, a_scene);
+unsigned int SceneManager::addScene(std::shared_ptr<Scene> a_scene)
+{
+    // eprintf("id:%u p:%x\n", sceneCounter, a_scene);
     /// Add an id-scene pair to the scenes map
     auto insertedScene = scenes.insert(std::make_pair(sceneCounter, a_scene));
 
@@ -17,15 +23,16 @@ unsigned int SceneManager::addScene(std::shared_ptr<Scene> a_scene) {
     return sceneCounter++;
 };
 
-void SceneManager::removeScene(unsigned int a_sceneId) {
+void SceneManager::removeScene(unsigned int a_sceneId)
+{
     // Find the id-scene pair for a_sceneId
-	eprintf("id:%u\n", a_sceneId);
+    eprintf("id:%u\n", a_sceneId);
     auto scenePair = scenes.find(a_sceneId);
 
-    if(scenePair != scenes.end()) {
+    if (scenePair != scenes.end()) {
         // If scene being removed is the current scene, set it to nullptr
         // to make sure we don't try to continue updating a nonexistant scene
-        if(currentScene == scenePair->second) {
+        if (currentScene == scenePair->second) {
             currentScene = nullptr;
         }
 
@@ -37,23 +44,30 @@ void SceneManager::removeScene(unsigned int a_sceneId) {
     }
 }
 
-void SceneManager::switchFocusTo(unsigned int a_sceneId) {
+bool SceneManager::switchFocusTo(unsigned int a_sceneId)
+{
     // Find the id-scene pair for a_sceneId
-	eprintf("%u\n", a_sceneId);
+    eprintf("%u\n", a_sceneId);
     auto scenePair = scenes.find(a_sceneId);
 
-    if(scenePair != scenes.end()) {
-        // Call current scene's onBlur if necessary
-        // eprintf("ptr:%u\n", scenePair->second);
-        if(currentScene) {
-            // eprintf("blurring old scene\n");
-            currentScene->onBlur();
-        }
+    if (scenePair == scenes.end()) {
+        // Requested scene not found -- return sadness
+        return false;
     }
-    
+
+    // Call current scene's onBlur if necessary
+    // eprintf("ptr:%u\n", scenePair->second);
+    if (currentScene) {
+        // eprintf("blurring old scene\n");
+        currentScene->onBlur();
+    }
+
     // Set current scene to new scene
     currentScene = scenePair->second;
 
     // Call onFocus
     currentScene->onFocus();
+
+    // Success
+    return true;
 }

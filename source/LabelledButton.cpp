@@ -5,21 +5,22 @@
 
 #include <3ds.h>
 #include <citro2d.h>
-#include <stdint.h>
 #include <math.h>
+#include <stdint.h>
 
 // Most getters/setters are defined in the header file to enhance performance optimisations
 #include "LabelledButton.hpp"
 
 LabelledButton::LabelledButton(float a_x, float a_y, C2D_SpriteSheet a_spriteSheet,
-        size_t a_spriteIndex, size_t a_spriteIndex_pressed,
-    	float a_centerX, float a_centerY,
-        const char *a_text,
-        float a_scaleX, float a_scaleY,
-    	float a_rotation,
-        u32 a_textColor)
+    size_t a_spriteIndex, size_t a_spriteIndex_pressed,
+    float a_centerX, float a_centerY,
+    const char* a_text,
+    float a_scaleX, float a_scaleY,
+    float a_rotation,
+    u32 a_textColor)
     : Button(a_x, a_y, a_spriteSheet, a_spriteIndex, a_spriteIndex_pressed,
-             a_centerX, a_centerY, a_scaleX, a_scaleY, a_rotation) {
+        a_centerX, a_centerY, a_scaleX, a_scaleY, a_rotation)
+{
     // Point topLeft = getRect().topLeft;
     // Point lowerRight = getRect().lowerRight;
     Point newPosition = calculatePosition();
@@ -34,8 +35,7 @@ LabelledButton::LabelledButton(float a_x, float a_y, C2D_SpriteSheet a_spriteShe
 
     eeprintf("Coordinates: %.02f, %.02f\n",
         newPosition.x,
-        newPosition.y
-    );
+        newPosition.y);
 
     /*
     textLabel = std::make_shared<Label>("Gameplay Test", 160, 48+24,
@@ -50,6 +50,5 @@ LabelledButton::LabelledButton(float a_x, float a_y, C2D_SpriteSheet a_spriteShe
         newPosition.x, newPosition.y,
         C2D_AtBaseline | C2D_AlignCenter,
         fontScale * a_scaleY, fontScale * a_scaleY, // intentional both Y
-        a_textColor, strlen(a_text) + 1
-    );
+        a_textColor, strlen(a_text) + 1);
 }

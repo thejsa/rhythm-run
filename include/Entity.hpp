@@ -15,18 +15,17 @@
  * Entity class
  */
 
-class Entity : public Drawable
-{
+class Entity : public Drawable {
 public:
     Entity(float a_x, float a_y, C2D_SpriteSheet a_spriteSheet, size_t a_spriteIndex,
-    	float a_centerX, float a_centerY, float a_scaleX, float a_scaleY,
-    	float a_rotation);
+        float a_centerX, float a_centerY, float a_scaleX, float a_scaleY,
+        float a_rotation);
     Entity() {}; // default empty constructor
 
     // Getter functions
     inline float getX() { return sprite.params.pos.x; };
     inline float getY() { return sprite.params.pos.y; };
-    
+
     /// @brief Return the (relative) center point of the sprite (0.0 thru 1.0)
     inline float getCenterX() { return getCenterXRaw() / getWidth(); };
     inline float getCenterY() { return getCenterYRaw() / getHeight(); };
@@ -37,7 +36,7 @@ public:
     inline float getScaleX() { return sprite.params.pos.w / sprite.image.subtex->width; };
     inline float getScaleY() { return sprite.params.pos.h / sprite.image.subtex->height; };
     inline float getRotation() { return sprite.params.angle; };
-    inline float getRotationDegrees() { return sprite.params.angle*360.0f/M_TAU; };
+    inline float getRotationDegrees() { return sprite.params.angle * 360.0f / M_TAU; };
     // Get scaled dimensions
     inline float getWidth() { return sprite.params.pos.w; };
     inline float getHeight() { return sprite.params.pos.h; };
@@ -84,9 +83,10 @@ public:
     /// @brief Rotate the sprite in degrees (relative to current rotation)
     /// @param a_radians Rotation in degrees
     inline void rotateDegrees(float a_degrees) { C2D_SpriteRotate(&sprite, a_degrees); };
-    
+
     /// @brief Draw the sprite
     inline bool draw() { return C2D_DrawSprite(&sprite); };
+
 protected:
     /// @brief Current C2D sprite sheet
     C2D_SpriteSheet spriteSheet;
