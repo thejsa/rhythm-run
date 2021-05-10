@@ -23,7 +23,7 @@ LabelledButton::LabelledButton(float a_x, float a_y, C2D_SpriteSheet a_spriteShe
 {
     // Point topLeft = getRect().topLeft;
     // Point lowerRight = getRect().lowerRight;
-    Point newPosition = calculatePosition();
+    Vec2D newPosition = calculatePosition();
 
     float fontScale = 0.75f * getHeight() / 30.0f; // 3ds font height = 30px
     // float fontScale = 0.75f;

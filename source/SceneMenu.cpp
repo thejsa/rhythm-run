@@ -190,7 +190,7 @@ void SceneMenu::processInput()
     // read touch
     touchPosition tpos;
     hidTouchRead(&tpos);
-    Point touchPoint = {
+    Vec2D touchPoint = {
         tpos.px * 1.0f,
         tpos.py * 1.0f
     };

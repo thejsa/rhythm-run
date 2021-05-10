@@ -6,20 +6,20 @@
 #pragma once
 #include <stdint.h>
 
-typedef struct Point {
+typedef struct Vec2D {
     float x;
     float y;
-} Point;
+} Vec2D;
 
 class Rectangle {
 public:
     /// Coordinate of the upper-left corner of the Rectangle.
-    Point topLeft;
+    Vec2D topLeft;
     /// Coordinate of the lower-right corner of the Rectangle.
-    Point lowerRight;
+    Vec2D lowerRight;
 
     /// Rectangle constructor.
-    Rectangle(Point a_topLeft, Point a_lowerRight)
+    Rectangle(Vec2D a_topLeft, Vec2D a_lowerRight)
         : topLeft(a_topLeft)
         , lowerRight(a_lowerRight) {};
 
@@ -74,7 +74,7 @@ public:
     // }
 
     /// Returns true if this Rectangle intersects the given Point.
-    inline bool doesIntersect(Point a_point)
+    inline bool doesIntersect(Vec2D a_point)
     {
         // Construct a 1x1 rectangle of the point.
         return doesIntersect(Rectangle(a_point, a_point));

@@ -21,7 +21,7 @@ typedef enum touchEventKind_t {
 /// Touch event
 typedef struct touchEvent_t {
     touchEventKind_t kind;
-    Point pos;
+    Vec2D pos;
 } touchEvent_t;
 
 /// Touch event listener

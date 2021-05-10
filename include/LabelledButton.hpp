@@ -44,7 +44,7 @@ public:
     {
         Button::draw();
 
-        Point newPosition = calculatePosition();
+        Vec2D newPosition = calculatePosition();
 
         // eeprintf("textLabel->setPosition %.02f, %.02f\n",
         //     floor(newPosition.x),
@@ -81,9 +81,9 @@ public:
     std::shared_ptr<Label> textLabel;
 
 protected:
-    Point calculatePosition()
+    Vec2D calculatePosition()
     {
-        Point topLeft = getRect().topLeft;
+        Vec2D topLeft = getRect().topLeft;
 
         float fontScale = 0.75f * getHeight() / 30.0f; // 3ds font height = 30px
         // float fontScale = 0.75f;
@@ -93,7 +93,7 @@ protected:
         // float fontBaseline = 24.0f;
         // eeprintf("Font base : %.02f\n", fontBaseline);
 
-        return Point {
+        return Vec2D {
             topLeft.x + (getWidth() / 2),
             topLeft.y + fontBaseline + (getHeight() / 8)
         };
