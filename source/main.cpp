@@ -8,12 +8,16 @@
 #include "Game.hpp"
 #include <3ds.h>
 
+// PrintConsole debugConsole;
+
 int main(int argc_, char* argv_[])
 {
+    consoleDebugInit(debugDevice_SVC);
+
     // #ifdef DEBUG
     // printf("gdbHioDevInit %d\n", gdbHioDevInit());
-    gdbHioDevInit();
-    gdbHioDevRedirectStdStreams(true, true, true);
+    // gdbHioDevInit();
+    // gdbHioDevRedirectStdStreams(true, true, true);
     eprintf("Hello from 3DS!\n");
     // #endif
 

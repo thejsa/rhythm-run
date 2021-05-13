@@ -15,7 +15,7 @@
  * Entity class
  */
 
-class Entity : public Drawable {
+class Entity : public virtual Drawable {
 public:
     Entity(float a_x, float a_y, C2D_SpriteSheet a_spriteSheet, size_t a_spriteIndex,
         float a_centerX, float a_centerY, float a_scaleX, float a_scaleY,
@@ -46,6 +46,9 @@ public:
 
     /// @brief Get bounding box
     Rectangle getRect();
+
+    /// @brief Get Axis-Aligned Bounding Box
+    AABB getAABB();
 
     inline size_t getSpriteIndex() { return spriteIndex; };
 

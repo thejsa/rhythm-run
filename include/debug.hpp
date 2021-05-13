@@ -4,7 +4,7 @@
 
 // Debug print macro
 #ifndef DEBUG
-#define DEBUG 0
+#define DEBUG 1
 #endif
 
 // https://stackoverflow.com/a/38237385
@@ -22,10 +22,12 @@ constexpr const char* _file_name(const char* path)
 // https://stackoverflow.com/a/1644898
 #define eprintf(fmt, ...)                                             \
     do {                                                              \
-        if (DEBUG)                                                    \
+        if (1)                                                        \
             fprintf(stderr, "%s:%d:%s(): " fmt, _file_name(__FILE__), \
                 __LINE__, __FUNCTION__, ##__VA_ARGS__);               \
     } while (0)
+
+// svcOutputDebugString(testString, strlen(testString));
 
 #define eeprintf(fmt, ...)                                            \
     do {                                                              \

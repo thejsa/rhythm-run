@@ -36,7 +36,7 @@ void Label::setText(const char* a_text, size_t a_bufSize = 0)
     // default buffer size to strlen, if not set
     if (!a_bufSize)
         a_bufSize = strlen(a_text) + 1;
-    eprintf("init, str: %s, len: %d\n", a_text, a_bufSize);
+    // eprintf("init, str: %s, len: %d\n", a_text, a_bufSize);
 
     // Create a text buffer
     textBuf = C2D_TextBufNew(a_bufSize);

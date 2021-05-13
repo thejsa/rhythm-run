@@ -53,3 +53,8 @@ Rectangle Entity::getRect()
             sprite.params.pos.x - xOffset + getWidth(),
             sprite.params.pos.y - yOffset + getHeight() });
 }
+
+AABB Entity::getAABB()
+{
+    return AABB(getRect());
+}

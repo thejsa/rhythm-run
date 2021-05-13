@@ -1,21 +1,26 @@
-/*
- * Rhythm Run for Nintendo 3DS
- * Lauren Kelly, 2021
- */
-
+#include "Drawable.hpp"
 #include "Entity.hpp"
+#include "MovingObject.hpp"
 
-/**
- * Player class
- */
+#include <memory>
 
-class Player : public Entity {
+class Player : public virtual Drawable, public MovingObject {
 public:
-    void jump();
+    enum State {
+        Stand,
+        Walk,
+        Jump,
+        GrabLedge
+    };
 
-private:
-    float fSpeed;
-    float fWeight;
-    float fVelocityX;
-    float fVelocityY;
+    std::unique_ptr<Entity> myEntity;
+    State currentState;
+    float jumpSpeed;
+    float walkSpeed;
+    float weight;
+
+    Player(std::unique_ptr<Entity> a_entity);
+
+    void update(float a_timeDelta);
+    bool draw();
 };

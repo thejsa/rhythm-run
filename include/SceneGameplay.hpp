@@ -9,6 +9,8 @@
 
 #include "AudioManager.hpp"
 #include "Entity.hpp"
+#include "Label.hpp"
+#include "Player.hpp"
 #include "RenderWindow.hpp"
 #include "Scene.hpp"
 #include "SceneManager.hpp"
@@ -29,7 +31,7 @@ public:
 
     void processInput() override;
     void update(float a_timeDelta) override;
-    // void lateUpdate(float a_timeDelta) override;
+    // void lateUpdate(float a_timeDe   lta) override;
 
     void draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower) override;
 
@@ -51,10 +53,14 @@ private:
 
     std::shared_ptr<Entity> playerEntity;
 
+    std::shared_ptr<Player> myPlayer;
+
     std::shared_ptr<Entity> platform1Entity;
     std::shared_ptr<Entity> platform2Entity;
     std::shared_ptr<Entity> platform3Entity;
     std::shared_ptr<Entity> platform4Entity;
+
+    std::shared_ptr<Label> debugLabel;
 
     std::shared_ptr<OggOpusFile> opusFile;
     unsigned int audioId;

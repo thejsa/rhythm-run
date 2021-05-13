@@ -34,6 +34,13 @@ void SceneGameplay::onCreate()
     // } else {
     // 	scale = 1.0f;
     // }
+
+    debugLabel = std::make_shared<Label>("Hello, world!", 8, 24,
+        C2D_AtBaseline | C2D_AlignLeft,
+        0.5f, 0.5f, // font size
+        C2D_Color32(0xb0, 0x0b, 0x69, 0xff),
+        0);
+
     playerEntity = std::make_shared<Entity>(200, 120, // centre of screen
         spriteSheet, 2, // which sheet & image to load
         // 0.5f, 0.5f, // sprite's origin
@@ -41,6 +48,13 @@ void SceneGameplay::onCreate()
         1.0f, 1.0f, // scale
         0.0f //rotation
     );
+
+    myPlayer = std::make_shared<Player>(std::make_unique<Entity>(
+        200, 120,
+        spriteSheet, 2,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.0f));
 
     // reposition to bottom left of screen
     playerEntity->setPosition(0, 240);
@@ -190,6 +204,7 @@ void SceneGameplay::processInput()
 
 void SceneGameplay::update(float a_timeDelta)
 {
+    static char debugLabelBuf[256];
     // if we should shutdown, cleanup
     if (sceneManager.shouldShutdown()) {
         audioManager.stop();
@@ -198,6 +213,37 @@ void SceneGameplay::update(float a_timeDelta)
 
     // eprintf("Update, delta: %f\n", a_timeDelta);
     durationElapsed += a_timeDelta;
+
+    // update player
+    myPlayer->update(a_timeDelta);
+
+    // update debug label
+    char* currentState;
+    switch (myPlayer->currentState) {
+    case Player::State::Jump:
+        currentState = "Jump";
+        break;
+    case Player::State::Stand:
+        currentState = "Standing";
+        break;
+    case Player::State::Walk:
+        currentState = "Walk";
+        break;
+    case Player::State::GrabLedge:
+        currentState = "Grabbing ledge";
+        break;
+    default:
+        currentState = "Unknown";
+    }
+
+    int debugLabelSize = sprintf(debugLabelBuf, "s: (%.02f, %.02f)\np: (%.02f, %.02f)\nstate: %s\nisOnGround?: %d",
+        myPlayer->speed.x,
+        myPlayer->speed.y,
+        myPlayer->position.x,
+        myPlayer->position.y,
+        currentState,
+        myPlayer->isOnGround);
+    debugLabel->setText(debugLabelBuf, debugLabelSize);
 
     // change scene if splash screen should end
     // if(durationElapsed >= durationEnd)
@@ -296,7 +342,8 @@ void SceneGameplay::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_rend
 {
     a_renderWindowUpper.beginDraw();
     a_renderWindowUpper.clear(C2D_Color32(255, 255, 255, 255));
-    a_renderWindowUpper.draw(playerEntity);
+    // a_renderWindowUpper.draw(playerEntity);
+    a_renderWindowUpper.draw(myPlayer);
     a_renderWindowUpper.draw(platform1Entity);
     a_renderWindowUpper.draw(platform2Entity);
     a_renderWindowUpper.draw(platform3Entity);
@@ -304,4 +351,5 @@ void SceneGameplay::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_rend
 
     a_renderWindowLower.beginDraw();
     a_renderWindowLower.clear(C2D_Color32(255, 255, 255, 255));
+    a_renderWindowLower.draw(debugLabel);
 }
