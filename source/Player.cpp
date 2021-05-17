@@ -5,7 +5,7 @@
 #include <3ds.h>
 
 Player::Player(std::unique_ptr<Entity> a_entity)
-    : weight(20.0f)
+    : weight(60.0f)
 {
     // take ownership of entity
     myEntity = std::move(a_entity);
@@ -16,6 +16,7 @@ Player::Player(std::unique_ptr<Entity> a_entity)
     oldPosition = position;
 
     speed = { 0, 0 };
+    accel = { 0, weight * Constants::GRAVITY };
     oldSpeed = speed;
 
     jumpSpeed = Constants::JUMP_SPEED;
@@ -34,7 +35,7 @@ void Player::update(float a_timeDelta)
         // eprintf("State::Stand\n");
         speed = { 0, 0 };
 
-        // if the character is not on the ground, it must be jumping
+        // if the character is not on the ground, it must be jumping already
         if (!isOnGround) {
             currentState = State::Jump;
             break;
@@ -42,7 +43,8 @@ void Player::update(float a_timeDelta)
 
         // if left XOR right is held, must be walking
         if (kHeld & KEY_A) {
-            speed.y = jumpSpeed * weight;
+            accel.y = weight * Constants::GRAVITY;
+            speed.y = weight * jumpSpeed;
             currentState = State::Jump;
             break;
         } else if ((kHeld & KEY_LEFT) != (kHeld & KEY_RIGHT)) {
@@ -72,7 +74,8 @@ void Player::update(float a_timeDelta)
 
         // handle jump
         if (kHeld & KEY_A) {
-            speed.y = jumpSpeed * weight;
+            accel.y = weight * Constants::GRAVITY;
+            speed.y = weight * jumpSpeed;
             currentState = State::Jump;
         } else if (!isOnGround) {
             // falling, so jump state but don't add Y speed
@@ -80,11 +83,19 @@ void Player::update(float a_timeDelta)
         }
         break;
     case State::Jump:
+        if (kHeld & KEY_A) {
+            accel.y = weight * Constants::GRAVITY;
+            speed.y = weight * jumpSpeed;
+            currentState = State::DoubleJump;
+        }
+        [[fallthrough]];
+    case State::DoubleJump:
         // eprintf("State::Jump\n");
         // jump animation not implemented
 
         // apply gravity, but cap falling speed at terminal velocity
-        speed.y += -Constants::GRAVITY * weight * a_timeDelta;
+        // speed.y += -Constants::GRAVITY * weight * a_timeDelta;
+        // now handled w/ real accel
         speed.y = std::min(speed.y, Constants::TERMINAL_VELOCITY);
 
         // if jump button not held, reduce speed
@@ -94,16 +105,18 @@ void Player::update(float a_timeDelta)
         // if right and left are both held or released, stand still
         if ((kHeld & KEY_RIGHT) == (kHeld & KEY_LEFT)) {
             // currentState = State::Stand;
-            speed.x = 0;
+            speed.x = 0.0f;
             // break;
         } else if (kHeld & KEY_RIGHT) {
             if (pushesRightWall)
-                speed.x = 0.0f;
+                speed.x
+                    = 0.0f;
             else
                 speed.x = walkSpeed * weight;
         } else if (kHeld & KEY_LEFT) {
             if (pushesLeftWall)
-                speed.x = 0.0f;
+                speed.x
+                    = 0.0f;
             else
                 speed.x = -walkSpeed * weight;
         }

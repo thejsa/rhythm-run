@@ -2,11 +2,25 @@
 
 class MovingObject {
 public:
-    MovingObject() {};
+    MovingObject()
+        : accel({ 0, 0 })
+        , oldSpeed({ 0, 0 })
+        , speed({ 0, 0 })
+        , pushedRightWall(false)
+        , pushesRightWall(false)
+        , pushedLeftWall(false)
+        , pushesLeftWall(false)
+        , wasOnGround(false)
+        , isOnGround(false)
+        , wasAtCeiling(false)
+        , isAtCeiling(false) {};
 
     // positions
     Vec2D oldPosition;
     Vec2D position;
+
+    // acceleration
+    Vec2D accel;
 
     // speeds
     Vec2D oldSpeed;

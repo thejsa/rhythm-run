@@ -13,6 +13,10 @@ void MovingObject::updatePhysics(float a_timeDelta)
     pushedRightWall = pushesRightWall;
     pushedLeftWall = pushesLeftWall;
 
+    // update speed based on acceleration
+    speed.x += accel.x * a_timeDelta;
+    speed.y += accel.y * a_timeDelta;
+
     // update position based on speed and delta
     position.x += speed.x * a_timeDelta;
     // y is flipped (top left @ 0,0)

@@ -218,10 +218,13 @@ void SceneGameplay::update(float a_timeDelta)
     myPlayer->update(a_timeDelta);
 
     // update debug label
-    char* currentState;
+    const char* currentState;
     switch (myPlayer->currentState) {
     case Player::State::Jump:
         currentState = "Jump";
+        break;
+    case Player::State::DoubleJump:
+        currentState = "Jump (double)";
         break;
     case Player::State::Stand:
         currentState = "Standing";
@@ -236,9 +239,11 @@ void SceneGameplay::update(float a_timeDelta)
         currentState = "Unknown";
     }
 
-    int debugLabelSize = sprintf(debugLabelBuf, "s: (%.02f, %.02f)\np: (%.02f, %.02f)\nstate: %s\nisOnGround?: %d",
+    int debugLabelSize = sprintf(debugLabelBuf, "v: (%.02f, %.02f)\na: (%.02f, %.02f)\np: (%.02f, %.02f)\nstate: %s\nisOnGround?: %d",
         myPlayer->speed.x,
         myPlayer->speed.y,
+        myPlayer->accel.x,
+        myPlayer->accel.y,
         myPlayer->position.x,
         myPlayer->position.y,
         currentState,

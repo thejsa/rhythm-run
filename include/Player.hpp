@@ -10,6 +10,7 @@ public:
         Stand,
         Walk,
         Jump,
+        DoubleJump,
         GrabLedge
     };
 

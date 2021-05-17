@@ -277,7 +277,7 @@ void SceneMenu::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWi
 
     // draw lower screen & buttons
     a_renderWindowLower.beginDraw();
-    a_renderWindowLower.clear(C2D_Color32(0xDD, 0xFF, 0xFF, 0xFF));
+    a_renderWindowLower.clear(C2D_Color32(0x00, 0x00, 0x00, 0xFF));
 
     a_renderWindowLower.draw(button1);
     a_renderWindowLower.draw(button2);
