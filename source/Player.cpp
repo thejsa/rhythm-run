@@ -86,7 +86,7 @@ void Player::update(float a_timeDelta)
         if (kHeld & KEY_A) {
             accel.y = weight * Constants::GRAVITY;
             speed.y = weight * jumpSpeed;
-            currentState = State::DoubleJump;
+            // currentState = State::DoubleJump;
         }
         [[fallthrough]];
     case State::DoubleJump:
