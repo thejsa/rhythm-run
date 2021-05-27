@@ -47,11 +47,15 @@
         "typeinfo": "cpp",
         "cstring": "cpp",
         "sstream": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "numbers": "cpp",
+        "map": "cpp",
+        "fstream": "cpp"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.clang_format_fallbackStyle": "WebKit",
     "editor.formatOnType": true,
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true
+    "editor.formatOnPaste": true,
+    "python.pythonPath": "/usr/local/bin/python3"
 }

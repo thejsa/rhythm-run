@@ -8,3 +8,7 @@ Licence: to be decided later; for now, don't copy this! it's not great and proba
 Credit for `newspapers_for_magicians.opus`: 'Newspapers for Magicians' by Camellia.
 
 The audio included as `moonlight_sonata.opus` / `sample.opus` is a clip from [Paul Pitman's recording of Ludwig van Beethoven's Moonlight Sonata, Op. 27 No. 2 - I. Adagio sostenuto, sourced from Musopen](https://musopen.org/music/2547-piano-sonata-no-14-in-c-sharp-minor-moonlight-sonata-op-27-no-2/) and in the public domain (trimmed and amplified using Audacity for file size reasons, then transcoded to 96 kb/s Opus using ffmpeg).
+
+`pause.opus` (used for pause screen and menu): "Leopard Print Elevator" by Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 3.0
+http://creativecommons.org/licenses/by/3.0/

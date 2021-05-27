@@ -42,6 +42,7 @@ ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 
 APP_TITLE	:=	Rhythm Run
+APP_DESCRIPTION := Rhythm game built with devkitARM, libctru and citro2d
 APP_AUTHOR	:=	Lauren Kelly
 
 #---------------------------------------------------------------------------------

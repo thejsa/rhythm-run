@@ -1,3 +1,8 @@
+/*
+ * Rhythm Run for Nintendo 3DS
+ * Lauren Kelly, 2021
+ */
+
 #pragma once
 
 #include <3ds.h>
@@ -62,9 +67,10 @@ public:
     /// is quit flag set?
     bool shouldQuit() { return quitFlag; }
 
-private:
     /// Stores all scenes
     std::unordered_map<unsigned int, std::shared_ptr<Scene>> scenes;
+
+private:
     /// Stores a reference to the current scene
     std::shared_ptr<Scene> currentScene;
     /// Stores the current scene ID, incremented whenever a scene is added

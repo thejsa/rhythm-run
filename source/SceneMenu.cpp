@@ -90,24 +90,18 @@ void SceneMenu::onCreate()
     // Play audio
     // soloud.init();
     // sample.load("romfs:/sample.wav");
-    // int error = 0;
+    int error = 0;
+    opusFile = std::shared_ptr<OggOpusFile>(op_open_file("romfs:/pause.opus", &error), op_free);
 
-    // char bgmPath[128];
-    // snprintf(bgmPath, std::extent_v<decltype(bgmPath)>, "romfs:/tracks/newspapers_for_magicians.opus");
-    // eprintf("opening %s\n", bgmPath);
-
-    // opusFile = std::shared_ptr<OggOpusFile>(op_open_file (bgmPath, &error), op_free);
-
-    // if (error)
-    // {
-    // 	eprintf("Failed to open file! error: %d\n", error);
-    // 	opusFile = nullptr;
-    // } else {
-    // 	audioId = audioManager.addFile(opusFile);
-    // 	// eprintf("opus file: %x -> id %d\n", opusFile, audioId);
-    // 	// audioId = 1337;
-    // }
-    opusFile = nullptr; // no music
+    if (error) {
+        eprintf("Failed to open file! error: %d\n", error);
+        opusFile = nullptr;
+    } else {
+        audioId = audioManager.addFile(opusFile);
+        // eprintf("opus file: %x -> id %d\n", opusFile, audioId);
+        // audioId = 1337;
+    }
+    // opusFile = nullptr; // no music
 
     eprintf("Fini\n");
 }
@@ -124,6 +118,7 @@ void SceneMenu::onFocus()
         if (err != 0) {
             eprintf("switchFileTo returned error: %d\n", err);
         }
+        audioManager.setLoop(true);
         audioManager.play();
     }
 

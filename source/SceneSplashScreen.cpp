@@ -36,17 +36,20 @@ void SceneSplashScreen::onCreate()
     );
 
     // Play audio
-    int error = 0;
-    opusFile = std::shared_ptr<OggOpusFile>(op_open_file("romfs:/sample.opus", &error), op_free);
+    // int error = 0;
+    // opusFile = std::shared_ptr<OggOpusFile>(op_open_file("romfs:/sample.opus", &error), op_free);
 
-    if (error) {
-        eprintf("Failed to open file! error: %d\n", error);
-        opusFile = nullptr;
-    } else {
-        audioId = audioManager.addFile(opusFile);
-        // eprintf("opus file: %x -> id %d\n", opusFile, audioId);
-        // audioId = 1337;
-    }
+    // if (error) {
+    //     eprintf("Failed to open file! error: %d\n", error);
+    //     opusFile = nullptr;
+    // } else {
+    //     audioId = audioManager.addFile(opusFile);
+    //     // eprintf("opus file: %x -> id %d\n", opusFile, audioId);
+    //     // audioId = 1337;
+    // }
+
+    // disable audio on splash screen
+    opusFile = nullptr;
 
     eprintf("Fini\n");
 }

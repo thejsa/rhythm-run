@@ -1,3 +1,8 @@
+/*
+ * Rhythm Run for Nintendo 3DS
+ * Lauren Kelly, 2020–2021
+ */
+
 #pragma once
 
 #include <3ds.h>
@@ -79,11 +84,21 @@ public:
             ndspChnSetPaused(BGM_CHANNEL, !isPaused());
         LightEvent_Signal(&audioEvent);
     };
+    inline void seekZero()
+    {
+        pause();
+        op_raw_seek(currentFile.get(), 0);
+        play();
+    };
+    inline void setLoop(bool a_value) { shouldLoop = a_value; };
+    inline void toggleLoop() { setLoop(!shouldLoop); };
 
     /// LightEvent for signalling the audio thread
     LightEvent audioEvent;
     /// Should playback be stopped?
     bool shouldStop;
+    /// Should playback loop?
+    bool shouldLoop;
     /// Is playback currently switching audio file?
     bool isSkipping;
 

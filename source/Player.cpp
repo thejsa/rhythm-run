@@ -17,9 +17,11 @@ Player::Player(std::unique_ptr<Entity> a_entity)
 
     speed = { 0, 0 };
     accel = { 0, weight * Constants::GRAVITY };
+    // accel = { 0, -8.0f };
     oldSpeed = speed;
 
     jumpSpeed = Constants::JUMP_SPEED;
+    // jumpSpeed = 0.8f;
     walkSpeed = Constants::WALK_SPEED;
 
     currentState = State::Jump;
@@ -83,10 +85,11 @@ void Player::update(float a_timeDelta)
         }
         break;
     case State::Jump:
-        if (kHeld & KEY_A) {
+        if (false && kHeld & KEY_A) {
             accel.y = weight * Constants::GRAVITY;
             speed.y = weight * jumpSpeed;
-            // currentState = State::DoubleJump;
+            // TODO: implement double jump properly (kDown)
+            currentState = State::DoubleJump;
         }
         [[fallthrough]];
     case State::DoubleJump:

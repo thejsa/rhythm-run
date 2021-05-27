@@ -4,10 +4,13 @@ SceneGameplay::SceneGameplay(SceneManager& a_sceneManager,
     AudioManager& a_audioManager, const char* a_trackName)
     : sceneManager(a_sceneManager)
     , audioManager(a_audioManager)
+    , winScene(nullptr)
     , trackName(a_trackName)
-    , nextSceneId(0)
+    , winSceneId(0)
+    , pauseSceneId(0)
     , durationEnd(1 / 30.0f)
-    , durationElapsed(0.0f) {};
+    , durationElapsed(0.0f)
+    , playerScore(0) {};
 
 void SceneGameplay::onCreate()
 {
@@ -21,6 +24,20 @@ void SceneGameplay::onCreate()
         svcBreak(USERBREAK_PANIC);
     }
 
+    bgSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/LevelBg.t3x");
+    if (!bgSpriteSheet) {
+        eprintf("failed to load bg sprite sheet\n");
+        // justSpin();
+        svcBreak(USERBREAK_PANIC);
+    }
+
+    levelBgEntity = std::make_shared<Entity>(0, 240, // bottom left
+        bgSpriteSheet, 0, // which sheet & image to load
+        0.0f, 1.0f, // sprite's origin = bottom left
+        1.0f, 1.0f, // scale
+        0.0f //rotation
+    );
+
     // Create sprite
     // float scale;
     // if(splashImageIndex == 2) {
@@ -33,6 +50,12 @@ void SceneGameplay::onCreate()
         C2D_AtBaseline | C2D_AlignLeft,
         0.5f, 0.5f, // font size
         C2D_Color32(0xb0, 0x0b, 0x69, 0xff),
+        0);
+
+    scoreLabel = std::make_shared<Label>("Score: 0", 384, 40,
+        C2D_AtBaseline | C2D_AlignRight,
+        1.0f, 1.0f, // font size
+        C2D_Color32(0xff, 0xff, 0xff, 0xcc), // partially translucent
         0);
 
     // position at bottom left of screen
@@ -67,14 +90,30 @@ void SceneGameplay::onCreate()
     // sample.load("romfs:/sample.wav");
     int error = 0;
 
+    // load beatmap bts file from romfs
+
+    char btsPath[128];
+    snprintf(btsPath, std::extent_v<decltype(btsPath)>, "romfs:/tracks/%s.bts", trackName);
+    eprintf("opening bts %s\n", btsPath);
+
+    std::ifstream btsHandle(btsPath);
+    if (!btsHandle) {
+        eprintf("Failed to open bts file at %s!!!\n", btsPath);
+    } else {
+        myBeatmap = BeatMap(btsHandle);
+        eprintf("Opened BTS file at %s with %d beats\n", btsPath, myBeatmap.beats.size());
+    }
+
+    // load opus bgm file from romfs
+
     char bgmPath[128];
     snprintf(bgmPath, std::extent_v<decltype(bgmPath)>, "romfs:/tracks/%s.opus", trackName);
-    eprintf("opening %s\n", bgmPath);
+    eprintf("opening opus %s\n", bgmPath);
 
     opusFile = std::shared_ptr<OggOpusFile>(op_open_file(bgmPath, &error), op_free);
 
     if (error) {
-        eprintf("Failed to open file! error: %d\n", error);
+        eprintf("Failed to open opus file! error: %d\n", error);
         opusFile = nullptr;
     } else {
         audioId = audioManager.addFile(opusFile);
@@ -97,6 +136,7 @@ void SceneGameplay::onFocus()
         if (err != 0) {
             eprintf("switchFileTo returned error: %d\n", err);
         }
+        audioManager.setLoop(true);
         audioManager.play();
     }
 
@@ -121,10 +161,21 @@ void SceneGameplay::onDestroy()
     audioManager.stop();
 }
 
-void SceneGameplay::setNextSceneId(unsigned int a_id)
+void SceneGameplay::setWinSceneId(unsigned int a_id)
 {
     eprintf("%u\n", a_id);
-    nextSceneId = a_id;
+    winSceneId = a_id;
+}
+
+void SceneGameplay::setWinScene(std::shared_ptr<SceneGameplayEnd> a_winScene)
+{
+    winScene = a_winScene;
+}
+
+void SceneGameplay::setPauseSceneId(unsigned int a_id)
+{
+    eprintf("%u\n", a_id);
+    pauseSceneId = a_id;
 }
 
 void SceneGameplay::processInput()
@@ -161,14 +212,35 @@ void SceneGameplay::processInput()
         }
     };
 
-    if (kDown & KEY_SELECT) {
-        sceneManager.switchFocusTo(nextSceneId);
+    // pause
+    if (kDown & KEY_START) {
+        sceneManager.switchFocusTo(pauseSceneId);
     }
 }
 
 void SceneGameplay::update(float a_timeDelta)
 {
+    // move the platform1entity
+    // get current position
+    float p1epx = platform1Entity->getX();
+    // move left at a fixed rate (per second)
+    p1epx -= (192.0f * a_timeDelta);
+    // wrap around
+    if (p1epx < (0 - platform1Entity->getWidth())) {
+        p1epx += 400;
+    }
+
+    platform1Entity->setPosition(
+        p1epx,
+        216);
+
+    // get audio length
+    static ogg_int64_t totalPcm = OP_EINVAL;
+    if (totalPcm == OP_EINVAL)
+        totalPcm = op_pcm_total(opusFile.get(), -1);
+
     static char debugLabelBuf[256];
+    static char scoreLabelBuf[256];
     // if we should shutdown, cleanup
     if (sceneManager.shouldShutdown()) {
         audioManager.stop();
@@ -203,7 +275,88 @@ void SceneGameplay::update(float a_timeDelta)
         currentState = "Unknown";
     }
 
-    int debugLabelSize = sprintf(debugLabelBuf, "v: (%.02f, %.02f)\na: (%.02f, %.02f)\np: (%.02f, %.02f)\nstate: %s\nisOnGround?: %d",
+    // get time in audio
+    // sample rate = 48kHz]
+    ogg_int64_t tellPcm = op_pcm_tell(opusFile.get());
+
+    // variables for the next beat to be sent on screen
+    static long nextBeat = -1;
+    static long showNextBeatAt = -1;
+
+    // pop beat off the front of the beatmap queue if we need another
+    if (nextBeat == -1) {
+        nextBeat = myBeatmap.popBeat();
+        eprintf("next beat: %ld\n", nextBeat);
+
+        if (nextBeat == -1) {
+            // eprintf("no more beats, endgame??");
+            showNextBeatAt = -1;
+        } else {
+            // should have 3 beats ahead; bpm/60 = bps; s = bps/b
+            showNextBeatAt = nextBeat - (3 / 60.0f * myBeatmap.bpm);
+        }
+    }
+
+    // 48kHz = 48 cycles per ms
+    if (showNextBeatAt > -1 && (tellPcm / 48.0f) >= showNextBeatAt) {
+        auto theBeatEntity = std::make_unique<Entity>(
+            (400 - 32), 128, // top right ish and it'll move left
+            spriteSheet, 4, // which sheet & image to load
+            // 0.5f, 0.5f, // sprite's origin
+            0.0f, 1.0f, // sprite's origin -- bottom left
+            1.0f, 1.0f, // scale
+            0.0f //rotation
+        );
+        auto theBeat = std::make_shared<Beat>(
+            nextBeat,
+            theBeatEntity);
+        // velocity equals distance over time
+        // (-400 + 32) / (nextBeat - showNextBeatAt)
+        theBeat->speed.x = (32.0f - 400.0f) / (1 / 10.0f * (nextBeat - showNextBeatAt));
+        eprintf("new x speed: %.05f\n", theBeat->speed.x);
+
+        beatQueue.push_back(theBeat);
+
+        nextBeat = -1;
+        showNextBeatAt = -1;
+    }
+
+    // remove expired beats and run collision detection
+    for (auto& theBeat : beatQueue) {
+        theBeat->update(a_timeDelta);
+        // remove expired beats
+        if (theBeat->position.x < -32.0f) {
+            beatQueue.pop_front();
+        } else {
+            // collision detection (if player hit the beat, increment score)
+            if (myPlayer->myEntity->getAABB().doesOverlap(beatQueue.front()->myEntity->getAABB())) {
+                playerScore += 100;
+                // vanish the beat by moving off-screen (will be deleted next frame)
+                beatQueue.front()->position.x = -64.0f;
+            }
+        }
+    }
+
+    // check if player has hit the front beat (if any)
+    // if (!beatQueue.empty() && myPlayer->myEntity->getAABB().doesOverlap(beatQueue.front()->myEntity->getAABB())) {
+    //     // nice!
+    //     playerScore += 100;
+    // }
+
+    // update score label on top screen
+    int scoreLabelSize = sprintf(scoreLabelBuf, "Score: %ld", playerScore);
+    scoreLabel->setText(scoreLabelBuf, scoreLabelSize);
+
+    if (tellPcm == totalPcm) {
+        // end of track!
+        printf("end game! score: %ld\n", playerScore);
+        winScene.get()->setScore(playerScore);
+        // winScene->setScore(playerScore);
+        sceneManager.switchFocusTo(winSceneId);
+    }
+
+    int debugLabelSize = sprintf(debugLabelBuf, "SCORE: %ld\n\nv: (%.02f, %.02f)\na: (%.02f, %.02f)\np: (%.02f, %.02f)\nstate: %s\nisOnGround?: %d\naudio: %.02f ss / %.02f s\ne: %.02f, %.02f\nnextBeat: %ld / showNextBeatAt: %ld\nqueue length: %d\n",
+        playerScore,
         myPlayer->speed.x,
         myPlayer->speed.y,
         myPlayer->accel.x,
@@ -211,23 +364,40 @@ void SceneGameplay::update(float a_timeDelta)
         myPlayer->position.x,
         myPlayer->position.y,
         currentState,
-        myPlayer->isOnGround);
+        myPlayer->isOnGround,
+        tellPcm / 48000.0f,
+        totalPcm / 48000.0f,
+        platform1Entity->getX(), platform1Entity->getY(),
+        nextBeat, showNextBeatAt, beatQueue.size());
     debugLabel->setText(debugLabelBuf, debugLabelSize);
 
     // change scene if splash screen should end
     // if(durationElapsed >= durationEnd)
-    // 	sceneManager.switchFocusTo(nextSceneId);
+    // 	sceneManager.switchFocusTo(winSceneId);
 }
 
 void SceneGameplay::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
 {
+    // begin drawing and clear the screen
     a_renderWindowUpper.beginDraw();
     a_renderWindowUpper.clear(C2D_Color32(255, 255, 255, 255));
+
+    // draw the player and background sprites
+    a_renderWindowUpper.draw(levelBgEntity);
     a_renderWindowUpper.draw(myPlayer);
-    a_renderWindowUpper.draw(platform1Entity);
-    a_renderWindowUpper.draw(platform2Entity);
-    a_renderWindowUpper.draw(platform3Entity);
-    a_renderWindowUpper.draw(platform4Entity);
+    // a_renderWindowUpper.draw(platform1Entity);
+
+    // draw all the beats in the beat queue
+    for (auto& theBeat : beatQueue) {
+        a_renderWindowUpper.draw(theBeat);
+    }
+
+    // draw the score label :)
+    a_renderWindowUpper.draw(scoreLabel);
+
+    // a_renderWindowUpper.draw(platform2Entity);
+    // a_renderWindowUpper.draw(platform3Entity);
+    // a_renderWindowUpper.draw(platform4Entity);
 
     a_renderWindowLower.beginDraw();
     a_renderWindowLower.clear(C2D_Color32(255, 255, 255, 255));

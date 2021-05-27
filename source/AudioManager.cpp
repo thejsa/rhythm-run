@@ -5,6 +5,7 @@
 /// Constructor
 AudioManager::AudioManager()
     : shouldStop(true)
+    , shouldLoop(false)
     , isSkipping(false)
     , files(0)
     , currentFile(nullptr)
@@ -160,13 +161,17 @@ void AudioManager::audioThread()
             // fill buffer, or break if end of file
             if (!fillBuffer(currentFile.get(), waveBuf)) {
                 eprintf("reached end of audio playback\n");
-                shouldStop = true;
-                break;
+                if (shouldLoop) {
+                    op_raw_seek(currentFile.get(), 0);
+                } else {
+                    shouldStop = true;
+                    break;
+                }
+            } else {
+                // add the wavebuf and flush DSP cache
+                ndspChnWaveBufAdd(BGM_CHANNEL, &waveBuf);
+                DSP_FlushDataCache(waveBuf.data_pcm16, waveBuf.nsamples * CHANNELS_PER_SAMPLE * sizeof(std::int16_t));
             }
-
-            // add the wavebuf and flush DSP cache
-            ndspChnWaveBufAdd(BGM_CHANNEL, &waveBuf);
-            DSP_FlushDataCache(waveBuf.data_pcm16, waveBuf.nsamples * CHANNELS_PER_SAMPLE * sizeof(std::int16_t));
         }
 
         // If playback is paused, spin
@@ -259,8 +264,8 @@ int AudioManager::switchFileTo(unsigned int a_fileId)
         stop();
 
     // Seek any active audio file to the start
-    if (currentFile)
-        op_raw_seek(currentFile.get(), 0);
+    // if (currentFile)
+    // op_raw_seek(currentFile.get(), 0);
 
     // Find the id-file pair for a_fileId
     eprintf("%u\n", a_fileId);

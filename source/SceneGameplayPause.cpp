@@ -1,0 +1,265 @@
+#include "SceneGameplayPause.hpp"
+
+SceneGameplayPause::SceneGameplayPause(SceneManager& a_sceneManager,
+    AudioManager& a_audioManager,
+    unsigned int a_gameplaySceneId,
+    unsigned int a_menuSceneId)
+    : sceneManager(a_sceneManager)
+    , audioManager(a_audioManager)
+    , gameplaySceneId(a_gameplaySceneId)
+    , menuSceneId(a_menuSceneId) {};
+
+void SceneGameplayPause::onCreate()
+{
+    // Load sprite sheet
+    eprintf("OnCreate\n");
+
+    spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/SceneGameplayPause.t3x");
+    if (!spriteSheet) {
+        eprintf("failed to load sprite sheet\n");
+        // justSpin();
+        svcBreak(USERBREAK_PANIC);
+    }
+
+    // Create sprite
+    // float scale;
+    // if(splashImageIndex == 2) {
+    // 	scale = 4.0f;
+    // } else {
+    // 	scale = 1.0f;
+    // }
+    splashImageEntity = std::make_shared<Entity>(200, 120, // centre of screen
+        spriteSheet, 0, // which sheet & image to load
+        0.5f, 0.5f, // sprite's origin
+        1.0f, 1.0f, // scale
+        0.0f //rotation
+    );
+
+    topScreenLabel = std::make_shared<Label>("Paused", 200, (200 - 36),
+        C2D_AtBaseline | C2D_AlignCenter,
+        1.0f, 1.0f, // font size
+        C2D_Color32(0xff, 0xff, 0xff, 0xff),
+        0);
+
+    // continue button
+    button1 = std::make_shared<LabelledButton>(40, 48, // x,y
+        spriteSheet, 1, 2, // which sheet & image to load
+        0.0f, 0.0f, // sprite's origin
+        "Continue",
+        1.0f, 1.0f, // scale
+        0.0f, //rotation
+        C2D_Color32(0xff, 0xff, 0xff, 0xff));
+
+    // quit level button
+    button2 = std::make_shared<LabelledButton>(40, 104, // x,y
+        spriteSheet, 1, 2, // which sheet & image to load
+        0.0f, 0.0f, // sprite's origin
+        "Quit Level",
+        1.0f, 1.0f, // scale
+        0.0f, //rotation
+        C2D_Color32(0xff, 0xff, 0xff, 0xff));
+
+    // exit button
+    button3 = std::make_shared<LabelledButton>(40, 160, // x,y
+        spriteSheet, 1, 2, // which sheet & image to load
+        0.0f, 0.0f, // sprite's origin
+        "Quit Game",
+        0.5f, 0.75f, // scale
+        0.0f, //rotation
+        C2D_Color32(0xff, 0xff, 0xff, 0xff));
+    // button3Label = std::make_shared<Label>("Exit", 160, 160+24,
+    // 	C2D_AtBaseline | C2D_AlignCenter,
+    // 	0.75f, 0.75f, // font size
+    // 	C2D_Color32(0xff, 0xff, 0xff, 0xff),
+    // 	0
+    // );
+
+    // Play audio
+    int error = 0;
+    opusFile = std::shared_ptr<OggOpusFile>(op_open_file("romfs:/pause.opus", &error), op_free);
+
+    if (error) {
+        eprintf("Failed to open file! error: %d\n", error);
+        opusFile = nullptr;
+    } else {
+        audioId = audioManager.addFile(opusFile);
+        // eprintf("opus file: %x -> id %d\n", opusFile, audioId);
+        // audioId = 1337;
+    }
+    // opusFile = nullptr; // no music
+
+    eprintf("Fini\n");
+}
+
+void SceneGameplayPause::onFocus()
+{
+    // eprintf("Focus\n");
+    // Reset duration timer
+    // durationElapsed = 0.0f;
+
+    if (opusFile) {
+        eprintf("switch to audio %d\n", audioId);
+        int err = audioManager.switchFileTo(audioId);
+        if (err != 0) {
+            eprintf("switchFileTo returned error: %d\n", err);
+        }
+        audioManager.setLoop(true);
+        audioManager.play();
+    }
+
+    // sample.load("romfs:/sample.wav");
+    // soloud.play(sample);
+}
+
+void SceneGameplayPause::onBlur()
+{
+    if (opusFile) {
+        audioManager.pause();
+        eprintf("pause audio\n");
+    }
+}
+
+void SceneGameplayPause::onDestroy()
+{
+    // soloud.deinit();
+    // if(opusFile) op_free(opusFile);
+    // smart pointer means we don't need to?
+    eprintf("OnDestroy\n");
+    audioManager.stop();
+}
+
+// void SceneGameplayPause::setNextSceneId(unsigned int a_id)
+// {
+// 	eprintf("%u\n", a_id);
+// 	nextSceneId = a_id;
+// }
+
+void SceneGameplayPause::processInput()
+{
+    // Quit if APT says we should, or if user presses the START key
+    u32 kDown = hidKeysDown();
+    if (kDown & KEY_A) {
+        eprintf("keyA\n");
+        audioManager.pause();
+    };
+    if (kDown & KEY_B) {
+        eprintf("keyB\n");
+        audioManager.unpause();
+    };
+    if (kDown & KEY_Y) {
+        eprintf("keyY\n");
+        audioManager.togglePause();
+    };
+    if (kDown & KEY_L) {
+        eprintf("keyL\n");
+        if (!audioManager.isStopped()) {
+            audioManager.stop();
+        } else {
+            eprintf("already stopped!\n");
+        }
+    };
+    if (kDown & KEY_R) {
+        eprintf("keyR\n");
+        if (audioManager.isStopped()) {
+            audioManager.play();
+        } else {
+            eprintf("already playing!\n");
+        }
+    };
+
+    // read touch
+    touchPosition tpos;
+    hidTouchRead(&tpos);
+    Vec2D touchPoint = {
+        tpos.px * 1.0f,
+        tpos.py * 1.0f
+    };
+    Rectangle touchRect { touchPoint, touchPoint };
+
+    Rectangle button1bbox = button1->getRect();
+    Rectangle button2bbox = button2->getRect();
+    Rectangle button3bbox = button3->getRect();
+
+    // button 1- gameplay
+    if (button1bbox.doesIntersect(touchRect) && !button1->getPressed()) {
+        // printf("b1 pressed\n");
+        button1->setPressed(true);
+        // button1Label->move(2.0f, 2.0f);
+    } else if (tpos.px == 0 && tpos.py == 0 && button1->getPressed()) {
+        // printf("b1 button pressed&released!\n");
+        button1->setPressed(false);
+        // button1Label->move(-2.0f, -2.0f);
+
+        sceneManager.switchFocusTo(gameplaySceneId);
+    } else {
+        // printf("button not pressed");
+    }
+
+    // button 2- splash
+    if (button2bbox.doesIntersect(touchRect) && !button2->getPressed()) {
+        // printf("b2 pressed\n");
+        button2->setPressed(true);
+        // button2Label->move(2.0f, 2.0f);
+    } else if (tpos.px == 0 && tpos.py == 0 && button2->getPressed()) {
+        // printf("b2 button pressed&released!\n");
+        button2->setPressed(false);
+        // button2Label->move(-2.0f, -2.0f);
+
+        sceneManager.switchFocusTo(menuSceneId);
+    } else {
+        // printf("button not pressed");
+    }
+
+    // button 3- quit
+    if (button3bbox.doesIntersect(touchRect) && !button3->getPressed()) {
+        // printf("b3 pressed\n");
+        button3->setPressed(true);
+        // button3Label->move(2.0f, 2.0f);
+    } else if (tpos.px == 0 && tpos.py == 0 && button3->getPressed()) {
+        // printf("b3 button pressed&released!\n");
+        button3->setPressed(false);
+        // button3Label->move(-2.0f, -2.0f);
+
+        // can shutdown
+        sceneManager.shutdown();
+    } else {
+        // printf("button not pressed");
+    }
+
+    // printf("bbox (%.0f, %.0f), (%.0f, %.0f)\n", bbox.topLeft.x, bbox.topLeft.y, bbox.lowerRight.x, bbox.lowerRight.y);
+    // printf("touch (%.0f, %.0f), (%.0f, %.0f)\n", touchRect.topLeft.x, touchRect.topLeft.y, touchRect.lowerRight.x, touchRect.lowerRight.y);
+    // // eprintf("%.0f, %.0f\n", tpos.px * 1.0f, tpos.py * 1.0f);
+}
+
+void SceneGameplayPause::update(float a_timeDelta)
+{
+    ((void)0);
+    // eprintf("Update, delta: %f\n", a_timeDelta);
+    // durationElapsed += a_timeDelta;
+
+    // change scene if splash screen should end
+    // if(durationElapsed >= durationEnd)
+    // 	sceneManager.switchFocusTo(nextSceneId);
+    // if(durationElapsed >= durationEnd) {
+    // eprintf("durationElapsed: + %.2f s\n", durationElapsed);
+    // durationElapsed = 0;
+    // sceneManager.switchFocusTo(nextSceneId);
+    // }
+}
+
+void SceneGameplayPause::draw(RenderWindow& a_renderWindowUpper, RenderWindow& a_renderWindowLower)
+{
+    // draw upper screen & splash image
+    a_renderWindowUpper.beginDraw();
+    a_renderWindowUpper.clear(C2D_Color32(0xb0, 0x0b, 0x69, 0xff));
+    a_renderWindowUpper.draw(topScreenLabel);
+    // a_renderWindowUpper.draw(splashImageEntity);
+
+    // draw lower screen & buttons
+    a_renderWindowLower.beginDraw();
+    a_renderWindowLower.clear(C2D_Color32(0x00, 0x00, 0x00, 0xFF));
+
+    a_renderWindowLower.draw(button1);
+    a_renderWindowLower.draw(button2);
+    // a_renderWindowLower.draw(button3);
+}

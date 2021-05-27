@@ -10,6 +10,8 @@
 #include "Label.hpp"
 
 #include "SceneGameplay.hpp"
+#include "SceneGameplayEnd.hpp"
+#include "SceneGameplayPause.hpp"
 #include "SceneMenu.hpp"
 #include "SceneSplashScreen.hpp"
 
@@ -46,8 +48,9 @@ Game::Game()
     std::shared_ptr<SceneGameplay> gameplayScene = std::make_shared<SceneGameplay>(
         sceneManager,
         audioManager,
-        // "newspapers_for_magicians" // track
-        "moonlight_sonata" // track
+        "newspapers_for_magicians" // track
+        // "moonlight_sonata" // track
+        // "short" // track
     );
 
     eprintf("adding scenes to manager\n");
@@ -69,7 +72,23 @@ Game::Game()
     // just cycle the splash screens until we implement more fun stuff
     splashScene1->setNextSceneId(splashScene2Id);
     splashScene2->setNextSceneId(menuSceneId);
-    gameplayScene->setNextSceneId(menuSceneId);
+
+    std::shared_ptr<SceneGameplayPause> gameplayScenePause = std::make_shared<SceneGameplayPause>(
+        sceneManager,
+        audioManager,
+        gameplaySceneId,
+        menuSceneId);
+    unsigned int pauseSceneId = sceneManager.addScene(gameplayScenePause);
+
+    std::shared_ptr<SceneGameplayEnd> gameplaySceneEnd = std::make_shared<SceneGameplayEnd>(
+        sceneManager,
+        audioManager,
+        gameplaySceneId,
+        menuSceneId);
+    unsigned int winSceneId = sceneManager.addScene(gameplaySceneEnd);
+
+    gameplayScene->setWinSceneId(winSceneId);
+    gameplayScene->setPauseSceneId(pauseSceneId);
     // splashScene1->setNextSceneId(splashScene2Id);
     // splashScene2->setNextSceneId(splashScene3Id);
     // splashScene3->setNextSceneId(splashScene1Id);
@@ -92,8 +111,8 @@ void Game::processInput()
     // Respond to user input
     hidScanInput();
 
-    if (hidKeysDown() & KEY_START) {
-        eprintf("keyStart -- quit flag!\n");
+    if (hidKeysDown() & (KEY_START & KEY_SELECT)) {
+        eprintf("keyStart & keySelect -- quit flag!\n");
         // signal sceneManager to shutdown
         sceneManager.shutdown();
     }

@@ -7,6 +7,13 @@
 
 #include "AudioManager.hpp"
 #include "Entity.hpp"
+/*
+ * Rhythm Run for Nintendo 3DS
+ * Lauren Kelly, 2021
+ */
+
+#pragma once
+
 #include "Label.hpp"
 #include "RenderWindow.hpp"
 #include "SceneManager.hpp"
